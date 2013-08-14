@@ -3,8 +3,8 @@
 import os
 import sys
 
-import requests
-from requests.compat import is_py2
+import requests_netdna
+from requests_netdna.compat import is_py2
 
 try:
     from setuptools import setup
@@ -18,31 +18,31 @@ if sys.argv[-1] == 'publish':
 os.environ['PYTHONDONTWRITEBYTECODE'] = '1'
 
 packages = [
-    'requests',
-    'requests.packages',
-    'requests.packages.urllib3',
-    'requests.packages.urllib3.packages',
-    'requests.packages.urllib3.packages.ssl_match_hostname'
+    'requests_netdna',
+    'requests_netdna.packages',
+    'requests_netdna.packages.urllib3',
+    'requests_netdna.packages.urllib3.packages',
+    'requests_netdna.packages.urllib3.packages.ssl_match_hostname'
 ]
 
 if is_py2:
     packages.extend([
-        'requests.packages.oauthlib',
-        'requests.packages.oauthlib.oauth1',
-        'requests.packages.oauthlib.oauth1.rfc5849',
-        'requests.packages.oauthlib.oauth2',
-        'requests.packages.oauthlib.oauth2.draft25',
-        'requests.packages.chardet',
+        'requests_netdna.packages.oauthlib',
+        'requests_netdna.packages.oauthlib.oauth1',
+        'requests_netdna.packages.oauthlib.oauth1.rfc5849',
+        'requests_netdna.packages.oauthlib.oauth2',
+        'requests_netdna.packages.oauthlib.oauth2.draft25',
+        'requests_netdna.packages.chardet',
     ])
 else:
-    packages.append('requests.packages.chardet2')
+    packages.append('requests_netdna.packages.chardet2')
 
 requires = []
 
 setup(
-    name='requests',
-    version=requests.__version__,
-    description='Python HTTP for Humans.',
+    name='requests_netdna',
+    version=requests_netdna.__version__,
+    description='Python HTTP for Humans. NetDNA quote_plus fork.',
     long_description=open('README.rst').read() + '\n\n' +
                      open('HISTORY.rst').read(),
     author='Kenneth Reitz',
@@ -50,7 +50,7 @@ setup(
     url='http://python-requests.org',
     packages=packages,
     package_data={'': ['LICENSE', 'NOTICE'], 'requests': ['*.pem']},
-    package_dir={'requests': 'requests'},
+    package_dir={'requests_netdna': 'requests_netdna'},
     include_package_data=True,
     install_requires=requires,
     license=open('LICENSE').read(),

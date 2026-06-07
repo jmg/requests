@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/auth";
+import { planConfig } from "@/lib/plans";
 
 export type ActionState = { error?: string; ok?: boolean } | undefined;
 
@@ -37,6 +38,18 @@ export async function createRewardAction(
   });
 
   if (!parsed.success) return { error: parsed.error.issues[0].message };
+
+  // Límite del plan
+  const business = await prisma.business.findUnique({ where: { id: session.businessId } });
+  const limit = business ? planConfig(business.plan).rewardLimit : null;
+  if (limit !== null) {
+    const count = await prisma.reward.count({ where: { businessId: session.businessId } });
+    if (count >= limit) {
+      return {
+        error: `Alcanzaste el límite de ${limit} premios del plan ${business!.plan}. Mejorá tu plan para crear más.`,
+      };
+    }
+  }
 
   await prisma.reward.create({
     data: {

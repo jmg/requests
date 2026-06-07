@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { formatNumber, formatDate } from "@/lib/utils";
+import { OnboardingChecklist, type OnboardingStep } from "@/components/OnboardingChecklist";
 
 export default async function DashboardPage() {
   const session = (await getSession())!;
@@ -41,8 +42,37 @@ export default async function DashboardPage() {
     }),
   ]);
 
+  const rewardCount = await prisma.reward.count({ where: { businessId } });
+
   const pointsIssued = earnAgg._sum.points ?? 0;
   const pointsRedeemed = Math.abs(redeemAgg._sum.points ?? 0);
+
+  const brandingDone =
+    !!business && (business.brandColor !== "#1d783f" || business.logoEmoji !== "★");
+  const onboardingSteps: OnboardingStep[] = [
+    {
+      done: brandingDone,
+      label: "Personalizá tu marca",
+      desc: "Elegí el color e ícono que verán tus clientes en el portal.",
+      href: "/dashboard/settings",
+      cta: "Configurar",
+    },
+    {
+      done: rewardCount > 0,
+      label: "Creá tu primer premio",
+      desc: "Definí qué pueden canjear tus clientes con sus puntos.",
+      href: "/dashboard/rewards",
+      cta: "Crear premio",
+    },
+    {
+      done: customerCount > 0,
+      label: "Cargá tu primer cliente",
+      desc: "Registrá a un cliente para empezar a sumarle puntos.",
+      href: "/dashboard/customers/new",
+      cta: "Nuevo cliente",
+    },
+  ];
+  const onboardingDone = onboardingSteps.every((s) => s.done);
 
   const stats = [
     { label: "Clientes", value: formatNumber(customerCount), icon: "👥", href: "/dashboard/customers" },
@@ -62,6 +92,8 @@ export default async function DashboardPage() {
           + Nuevo cliente
         </Link>
       </div>
+
+      {!onboardingDone && <OnboardingChecklist steps={onboardingSteps} />}
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((s) => {

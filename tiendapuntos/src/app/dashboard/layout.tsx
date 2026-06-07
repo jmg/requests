@@ -22,7 +22,15 @@ export default async function DashboardLayout({ children }: { children: React.Re
             <Link href="/dashboard">
               <Logo className="text-lg" />
             </Link>
-            <p className="mt-2 truncate text-sm font-medium text-gray-700">{business.name}</p>
+            <div className="mt-2 flex items-center gap-2">
+              <span
+                className="flex h-7 w-7 items-center justify-center rounded-lg text-white"
+                style={{ backgroundColor: business.brandColor }}
+              >
+                {business.logoEmoji}
+              </span>
+              <p className="truncate text-sm font-medium text-gray-700">{business.name}</p>
+            </div>
           </div>
 
           <nav className="flex flex-1 flex-col gap-1 overflow-y-auto p-3">
@@ -41,9 +49,24 @@ export default async function DashboardLayout({ children }: { children: React.Re
             <NavLink href="/dashboard/transactions" icon="📈">
               Movimientos
             </NavLink>
+            <NavLink href="/dashboard/reports" icon="📊">
+              Reportes
+            </NavLink>
+            <NavLink href="/dashboard/billing" icon="💳">
+              Plan
+            </NavLink>
             <NavLink href="/dashboard/settings" icon="⚙️">
               Configuración
             </NavLink>
+            <a
+              href={`/p/${business.slug}`}
+              target="_blank"
+              rel="noreferrer"
+              className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-600 transition hover:bg-gray-100"
+            >
+              <span className="text-lg">🔗</span>
+              Portal público ↗
+            </a>
           </nav>
 
           <div className="border-t border-gray-100 p-3">

@@ -28,6 +28,9 @@ async function main() {
       pointsName: "puntos",
       pointsPerCurrency: 1,
       currency: "ARS",
+      brandColor: "#7c3aed",
+      logoEmoji: "☕",
+      plan: "PRO",
       users: {
         create: [
           { name: "Ana Dueña", email: "demo@tiendapuntos.com", password, role: "OWNER" },

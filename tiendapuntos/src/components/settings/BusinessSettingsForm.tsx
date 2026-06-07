@@ -9,6 +9,8 @@ type Business = {
   pointsName: string;
   pointsPerCurrency: number;
   currency: string;
+  brandColor: string;
+  logoEmoji: string;
 };
 
 export function BusinessSettingsForm({ business }: { business: Business }) {
@@ -49,6 +51,33 @@ export function BusinessSettingsForm({ business }: { business: Business }) {
           />
           <p className="mt-1 text-xs text-gray-500">Puntos otorgados por cada $1.</p>
         </div>
+      </div>
+
+      <div className="border-t border-gray-100 pt-4">
+        <h3 className="mb-3 text-sm font-semibold text-gray-700">Branding del portal</h3>
+        <div className="grid gap-4 sm:grid-cols-3">
+          <div>
+            <label className="label">Color de marca</label>
+            <input
+              className="h-10 w-full cursor-pointer rounded-lg border border-gray-300"
+              name="brandColor"
+              type="color"
+              defaultValue={business.brandColor}
+            />
+          </div>
+          <div>
+            <label className="label">Ícono / emoji</label>
+            <input
+              className="input"
+              name="logoEmoji"
+              defaultValue={business.logoEmoji}
+              maxLength={4}
+            />
+          </div>
+        </div>
+        <p className="mt-1 text-xs text-gray-500">
+          Se usan en el portal público que ven tus clientes.
+        </p>
       </div>
 
       {state?.error && (

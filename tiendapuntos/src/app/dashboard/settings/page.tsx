@@ -22,6 +22,21 @@ export default async function SettingsPage() {
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">Configuración</h1>
 
+      <div className="card">
+        <h2 className="text-lg font-semibold">Portal público</h2>
+        <p className="mt-1 text-sm text-gray-500">
+          Compartí este link con tus clientes para que consulten sus {business.pointsName}:
+        </p>
+        <div className="mt-3 flex items-center gap-2">
+          <code className="flex-1 truncate rounded-lg bg-gray-100 px-3 py-2 text-sm">
+            /p/{business.slug}
+          </code>
+          <a href={`/p/${business.slug}`} target="_blank" rel="noreferrer" className="btn-secondary">
+            Abrir ↗
+          </a>
+        </div>
+      </div>
+
       {isStaff ? (
         <div className="card text-sm text-gray-500">
           Tu rol de cajero no tiene acceso a la configuración del negocio.

@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireSession, hashPassword } from "@/lib/auth";
+import { planConfig } from "@/lib/plans";
 
 export type ActionState = { error?: string; ok?: boolean } | undefined;
 
@@ -12,6 +13,8 @@ const businessSchema = z.object({
   pointsName: z.string().min(1, "Ingresá el nombre de los puntos"),
   pointsPerCurrency: z.coerce.number().positive("Debe ser un número mayor a 0"),
   currency: z.string().min(1).max(5),
+  brandColor: z.string().regex(/^#[0-9a-fA-F]{6}$/, "Color inválido"),
+  logoEmoji: z.string().min(1).max(4),
 });
 
 export async function updateBusinessAction(
@@ -26,6 +29,8 @@ export async function updateBusinessAction(
     pointsName: formData.get("pointsName"),
     pointsPerCurrency: formData.get("pointsPerCurrency"),
     currency: formData.get("currency"),
+    brandColor: formData.get("brandColor"),
+    logoEmoji: formData.get("logoEmoji"),
   });
 
   if (!parsed.success) return { error: parsed.error.issues[0].message };
@@ -37,10 +42,27 @@ export async function updateBusinessAction(
       pointsName: parsed.data.pointsName.trim(),
       pointsPerCurrency: parsed.data.pointsPerCurrency,
       currency: parsed.data.currency.trim().toUpperCase(),
+      brandColor: parsed.data.brandColor,
+      logoEmoji: parsed.data.logoEmoji.trim(),
     },
   });
 
   revalidatePath("/dashboard/settings");
+  revalidatePath("/dashboard");
+  return { ok: true };
+}
+
+// Cambio de plan (simulado: sin pasarela de pago real).
+export async function changePlanAction(plan: "FREE" | "PRO"): Promise<ActionState> {
+  const session = await requireSession();
+  if (session.role === "STAFF") return { error: "No tenés permisos para esto" };
+
+  await prisma.business.update({
+    where: { id: session.businessId },
+    data: { plan, planSince: new Date() },
+  });
+
+  revalidatePath("/dashboard/billing");
   revalidatePath("/dashboard");
   return { ok: true };
 }
@@ -72,6 +94,18 @@ export async function createTeamMemberAction(
   const email = parsed.data.email.toLowerCase().trim();
   const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) return { error: "Ya existe un usuario con ese email" };
+
+  // Límite de equipo del plan
+  const business = await prisma.business.findUnique({ where: { id: session.businessId } });
+  const teamLimit = business ? planConfig(business.plan).teamLimit : null;
+  if (teamLimit !== null) {
+    const count = await prisma.user.count({ where: { businessId: session.businessId } });
+    if (count >= teamLimit) {
+      return {
+        error: `Alcanzaste el límite de ${teamLimit} usuarios del plan ${business!.plan}. Mejorá tu plan para sumar más.`,
+      };
+    }
+  }
 
   await prisma.user.create({
     data: {

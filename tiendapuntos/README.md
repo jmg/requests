@@ -8,7 +8,8 @@ Construida con **Next.js 14 (App Router)**, **Prisma** y **PostgreSQL**.
 
 ## ✨ Funcionalidades
 
-- **Multiusuario / multi-negocio**: cada cuenta crea su negocio aislado. Datos separados por negocio.
+### Núcleo
+- **Multiusuario / multi-negocio (SaaS)**: cada cuenta crea su negocio aislado. Datos separados por negocio (tenant).
 - **Roles**: Dueño (`OWNER`), Administrador (`ADMIN`) y Cajero (`STAFF`).
 - **Clientes**: alta, edición, búsqueda y ficha con saldo e historial.
 - **Sumar puntos**: por monto de compra (según puntos por unidad de moneda configurable) o por cantidad fija.
@@ -20,6 +21,16 @@ Construida con **Next.js 14 (App Router)**, **Prisma** y **PostgreSQL**.
 - **Resumen**: métricas (clientes, puntos emitidos/canjeados, canjes pendientes, mejores clientes).
 - **Configuración**: nombre del programa, nombre de los puntos, moneda, ratio de puntos y gestión del equipo.
 - **Autenticación propia** con JWT en cookie httpOnly (`jose` + `bcryptjs`) y middleware de protección de rutas.
+
+### SaaS
+- **Portal público del cliente final** (`/p/[slug]`): página sin login donde el cliente consulta su saldo
+  de puntos y premios disponibles ingresando su teléfono. Personalizada con el branding del negocio.
+- **Planes y suscripción**: planes **Free** y **Pro** con límites por plan (clientes, premios, equipo).
+  Los límites se aplican al crear registros. Cambio de plan desde `/dashboard/billing` (simulado, sin cobro real).
+- **Onboarding**: checklist de bienvenida en el panel que guía los primeros pasos (marca, premio, cliente).
+- **Branding por negocio**: color e ícono propios, usados en el panel y en el portal público.
+- **Reportes y exportación** (Pro): gráfico de actividad mensual (puntos emitidos vs. canjeados) y
+  exportación de clientes y movimientos a **CSV** (`/api/export/*`).
 
 ## 🛠️ Stack
 
@@ -84,7 +95,9 @@ tiendapuntos/
 │   ├── app/
 │   │   ├── page.tsx         # landing
 │   │   ├── login/ register/ # auth
-│   │   └── dashboard/       # panel (clientes, premios, canjes, movimientos, config)
+│   │   ├── p/[slug]/        # portal público del cliente final
+│   │   ├── api/export/      # exportación CSV (clientes / movimientos)
+│   │   └── dashboard/       # panel (clientes, premios, canjes, movimientos, reportes, plan, config)
 │   ├── components/          # UI reutilizable
 │   ├── lib/
 │   │   ├── auth.ts          # sesión JWT

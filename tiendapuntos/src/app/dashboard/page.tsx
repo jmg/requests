@@ -3,6 +3,7 @@ import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { formatNumber, formatDate } from "@/lib/utils";
 import { OnboardingChecklist, type OnboardingStep } from "@/components/OnboardingChecklist";
+import { QuickFind } from "@/components/QuickFind";
 
 export default async function DashboardPage() {
   const session = (await getSession())!;
@@ -94,6 +95,8 @@ export default async function DashboardPage() {
       </div>
 
       {!onboardingDone && <OnboardingChecklist steps={onboardingSteps} />}
+
+      <QuickFind />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((s) => {

@@ -26,11 +26,23 @@ Construida con **Next.js 14 (App Router)**, **Prisma** y **PostgreSQL**.
 - **Portal público del cliente final** (`/p/[slug]`): página sin login donde el cliente consulta su saldo
   de puntos y premios disponibles ingresando su teléfono. Personalizada con el branding del negocio.
 - **Planes y suscripción**: planes **Free** y **Pro** con límites por plan (clientes, premios, equipo).
-  Los límites se aplican al crear registros. Cambio de plan desde `/dashboard/billing` (simulado, sin cobro real).
+  Los límites se aplican al crear registros. Cambio de plan desde `/dashboard/billing`.
 - **Onboarding**: checklist de bienvenida en el panel que guía los primeros pasos (marca, premio, cliente).
 - **Branding por negocio**: color e ícono propios, usados en el panel y en el portal público.
 - **Reportes y exportación** (Pro): gráfico de actividad mensual (puntos emitidos vs. canjeados) y
   exportación de clientes y movimientos a **CSV** (`/api/export/*`).
+
+### Integraciones y operación
+- **Invitaciones de equipo por email** (`/invite/[token]`): el dueño/admin invita por email; el invitado
+  crea su cuenta desde un link con token (vence a 7 días). El envío de mail está stubbeado (se loguea
+  el contenido) y listo para conectar Resend/SMTP en `src/lib/email.ts`. El link también queda copiable.
+- **Pagos con Stripe**: upgrade a Pro vía **Stripe Checkout** y sincronización por **webhook**
+  (`/api/webhooks/stripe`). Si no configurás Stripe, el cambio de plan funciona en modo simulado.
+- **Subdominio por negocio**: con un dominio raíz configurado, cada negocio sirve su portal en
+  `slug.tudominio.com` (resuelto en `middleware.ts`). En local cae al path `/p/[slug]`.
+- **QR del portal**: en Configuración se genera el QR del portal para imprimir/compartir.
+- **Carga rápida**: buscador en el panel para encontrar un cliente por teléfono/nombre/email y
+  sumarle puntos al instante en el mostrador.
 
 ## 🛠️ Stack
 
@@ -83,6 +95,28 @@ Abrí http://localhost:3000
 ### Cuentas de demo (tras el seed)
 - **Dueño:** `demo@tiendapuntos.com` / `demo1234`
 - **Cajero:** `caja@tiendapuntos.com` / `demo1234`
+- **Portal público de la demo:** http://localhost:3000/p/cafe-central
+
+> El seed crea el negocio demo en plan **Pro**, así podés ver reportes y exportación.
+
+## 🔌 Integraciones opcionales
+
+### Stripe (pagos)
+1. Creá un producto/precio recurrente en Stripe y copiá el `price_...` en `STRIPE_PRICE_PRO`.
+2. Completá `STRIPE_SECRET_KEY`.
+3. Para webhooks en local: `stripe listen --forward-to localhost:3000/api/webhooks/stripe`
+   y poné el secreto resultante en `STRIPE_WEBHOOK_SECRET`.
+
+Sin estas variables, el upgrade a Pro funciona en **modo simulado** (cambia el plan sin cobrar).
+
+### Subdominios por negocio
+Configurá `NEXT_PUBLIC_ROOT_DOMAIN` (ej: `miapp.com`). El portal de cada negocio queda en
+`slug.miapp.com`. Para probar en local podés usar `lvh.me` (resuelve a 127.0.0.1):
+`NEXT_PUBLIC_ROOT_DOMAIN="lvh.me:3000"` → `http://cafe-central.lvh.me:3000`.
+
+### Email (invitaciones)
+El envío está stubbeado en `src/lib/email.ts` (loguea por consola). Reemplazá `sendEmail` por tu
+proveedor (Resend, SendGrid, SMTP) para enviar las invitaciones de verdad.
 
 ## 📁 Estructura
 

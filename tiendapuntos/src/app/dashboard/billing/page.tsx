@@ -1,8 +1,9 @@
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { PLANS, planConfig } from "@/lib/plans";
+import { stripeEnabled } from "@/lib/stripe";
 import { formatNumber, formatDate } from "@/lib/utils";
-import { ChangePlanButton } from "@/components/billing/ChangePlanButton";
+import { UpgradeButton, DowngradeButton } from "@/components/billing/BillingActions";
 
 function UsageBar({ label, used, limit }: { label: string; used: number; limit: number | null }) {
   const pct = limit === null ? 0 : Math.min(100, Math.round((used / limit) * 100));
@@ -26,13 +27,18 @@ function UsageBar({ label, used, limit }: { label: string; used: number; limit: 
   );
 }
 
-export default async function BillingPage() {
+export default async function BillingPage({
+  searchParams,
+}: {
+  searchParams: { success?: string; canceled?: string };
+}) {
   const session = (await getSession())!;
   const business = await prisma.business.findUnique({ where: { id: session.businessId } });
   if (!business) return null;
 
   const isStaff = session.role === "STAFF";
   const current = planConfig(business.plan);
+  const stripeOn = stripeEnabled();
 
   const [customerCount, rewardCount, teamCount] = await Promise.all([
     prisma.customer.count({ where: { businessId: business.id } }),
@@ -49,6 +55,17 @@ export default async function BillingPage() {
           {formatDate(business.planSince)}.
         </p>
       </div>
+
+      {searchParams.success && (
+        <div className="card bg-brand-50 text-sm text-brand-800">
+          ¡Pago confirmado! Tu plan Pro ya está activo. 🎉
+        </div>
+      )}
+      {searchParams.canceled && (
+        <div className="card bg-amber-50 text-sm text-amber-800">
+          El pago se canceló. Seguís en tu plan actual.
+        </div>
+      )}
 
       <div className="card space-y-4">
         <h2 className="text-lg font-semibold">Uso actual</h2>
@@ -93,19 +110,9 @@ export default async function BillingPage() {
                       Plan actual
                     </button>
                   ) : p.id === "PRO" ? (
-                    <ChangePlanButton
-                      plan="PRO"
-                      label="Mejorar a Pro"
-                      className="btn-primary w-full"
-                      confirm="Esto cambiaría tu plan a Pro (demo, sin cobro real). ¿Continuar?"
-                    />
+                    <UpgradeButton className="btn-primary w-full" />
                   ) : (
-                    <ChangePlanButton
-                      plan="FREE"
-                      label="Cambiar a Free"
-                      className="btn-secondary w-full"
-                      confirm="¿Volver al plan Free? Se aplicarán los límites del plan."
-                    />
+                    <DowngradeButton className="btn-secondary w-full" />
                   )}
                 </div>
               )}
@@ -115,8 +122,9 @@ export default async function BillingPage() {
       </div>
 
       <p className="text-xs text-gray-400">
-        Demo: el cambio de plan es inmediato y no procesa pagos reales. En producción se integraría
-        una pasarela (ej. Stripe / Mercado Pago).
+        {stripeOn
+          ? "Pagos procesados con Stripe Checkout. La gestión de la suscripción se sincroniza por webhook."
+          : "Stripe no está configurado: el cambio de plan funciona en modo simulado (sin cobro real). Configurá STRIPE_SECRET_KEY y STRIPE_PRICE_PRO para activar pagos."}
       </p>
     </div>
   );

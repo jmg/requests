@@ -116,6 +116,34 @@ export async function updateCustomerAction(
   return { ok: true };
 }
 
+// Búsqueda rápida por teléfono (para cargar puntos ágil en el mostrador).
+// Devuelve el id del cliente si hay coincidencia exacta o única por nombre/email.
+export async function findCustomerAction(query: string): Promise<{ id: string } | { id: null }> {
+  const session = await requireSession();
+  const q = query.trim();
+  if (!q) return { id: null };
+
+  const exactPhone = await prisma.customer.findFirst({
+    where: { businessId: session.businessId, phone: q },
+    select: { id: true },
+  });
+  if (exactPhone) return { id: exactPhone.id };
+
+  const matches = await prisma.customer.findMany({
+    where: {
+      businessId: session.businessId,
+      OR: [
+        { phone: { contains: q } },
+        { name: { contains: q, mode: "insensitive" } },
+        { email: { contains: q, mode: "insensitive" } },
+      ],
+    },
+    select: { id: true },
+    take: 2,
+  });
+  return matches.length === 1 ? { id: matches[0].id } : { id: null };
+}
+
 export async function deleteCustomerAction(customerId: string): Promise<void> {
   const session = await requireSession();
   await prisma.customer.deleteMany({

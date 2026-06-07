@@ -49,6 +49,8 @@ model Business {
   // Suscripción SaaS
   plan              Plan     @default(FREE)
   planSince         DateTime @default(now())
+  stripeCustomerId     String? @unique
+  stripeSubscriptionId String?
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
@@ -57,6 +59,21 @@ model Business {
   rewards      Reward[]
   transactions PointsTransaction[]
   redemptions  Redemption[]
+  invitations  Invitation[]
+}
+
+model Invitation {
+  id         String    @id @default(cuid())
+  businessId String
+  business   Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  email      String
+  role       Role      @default(STAFF)
+  token      String    @unique
+  acceptedAt DateTime?
+  expiresAt  DateTime
+  createdAt  DateTime  @default(now())
+
+  @@index([businessId])
 }
 
 model User {

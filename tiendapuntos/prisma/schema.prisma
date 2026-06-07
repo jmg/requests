@@ -1,0 +1,144 @@
+// Schema de la app de fidelización por puntos.
+// Modelo multi-negocio (multi-tenant): cada negocio tiene sus usuarios,
+// clientes, premios y transacciones de puntos aislados.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  OWNER // dueño del negocio (creó la cuenta)
+  ADMIN // puede administrar todo
+  STAFF // cajero: carga puntos y canjea
+}
+
+enum TxType {
+  EARN   // el cliente sumó puntos (por compra/carga)
+  REDEEM // el cliente canjeó puntos por un premio
+  ADJUST // ajuste manual (+/-)
+}
+
+enum RedemptionStatus {
+  PENDING   // canje generado, falta entregar el premio
+  FULFILLED // premio entregado
+  CANCELLED // canje cancelado (se devuelven los puntos)
+}
+
+model Business {
+  id                String   @id @default(cuid())
+  name              String
+  slug              String   @unique
+  // Nombre personalizable de la "moneda" de puntos (ej: "estrellas", "puntos")
+  pointsName        String   @default("puntos")
+  // Cuántos puntos se otorgan por cada unidad de moneda gastada
+  pointsPerCurrency Float    @default(1)
+  currency          String   @default("ARS")
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  users        User[]
+  customers    Customer[]
+  rewards      Reward[]
+  transactions PointsTransaction[]
+  redemptions  Redemption[]
+}
+
+model User {
+  id         String   @id @default(cuid())
+  email      String   @unique
+  name       String
+  password   String
+  role       Role     @default(OWNER)
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  transactions PointsTransaction[]
+
+  @@index([businessId])
+}
+
+model Customer {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  name       String
+  email      String?
+  phone      String?
+  notes      String?
+  // Saldo actual de puntos (denormalizado para lecturas rápidas)
+  points     Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  transactions PointsTransaction[]
+  redemptions  Redemption[]
+
+  // Un mismo teléfono no se repite dentro de un negocio
+  @@unique([businessId, phone])
+  @@index([businessId])
+}
+
+model PointsTransaction {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  type       TxType
+  // Puntos del movimiento: positivo al sumar, negativo al canjear/ajustar
+  points     Int
+  // Monto de la compra que originó los puntos (opcional)
+  amount     Float?
+  note       String?
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  createdAt  DateTime @default(now())
+
+  @@index([businessId])
+  @@index([customerId])
+}
+
+model Reward {
+  id          String   @id @default(cuid())
+  businessId  String
+  business    Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  name        String
+  description String?
+  pointsCost  Int
+  // null = stock ilimitado
+  stock       Int?
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  redemptions Redemption[]
+
+  @@index([businessId])
+}
+
+model Redemption {
+  id         String           @id @default(cuid())
+  businessId String
+  business   Business         @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  customerId String
+  customer   Customer         @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  rewardId   String
+  reward     Reward           @relation(fields: [rewardId], references: [id], onDelete: Cascade)
+  rewardName String
+  pointsCost Int
+  status     RedemptionStatus @default(PENDING)
+  // Código corto para mostrar/validar el canje
+  code       String           @unique
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+
+  @@index([businessId])
+  @@index([customerId])
+}

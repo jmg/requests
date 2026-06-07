@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getTranslations } from "next-intl/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/auth";
@@ -10,19 +11,20 @@ export type ActionState = { error?: string; ok?: boolean } | undefined;
 // Sumar puntos a un cliente.
 // Se puede cargar por monto de compra (se calculan según pointsPerCurrency)
 // o directamente por una cantidad fija de puntos.
-const earnSchema = z.object({
-  mode: z.enum(["amount", "points"]),
-  amount: z.coerce.number().optional(),
-  points: z.coerce.number().optional(),
-  note: z.string().optional(),
-});
-
 export async function earnPointsAction(
   customerId: string,
   _prev: ActionState,
   formData: FormData
 ): Promise<ActionState> {
   const session = await requireSession();
+  const t = await getTranslations("errors");
+
+  const earnSchema = z.object({
+    mode: z.enum(["amount", "points"]),
+    amount: z.coerce.number().optional(),
+    points: z.coerce.number().optional(),
+    note: z.string().optional(),
+  });
 
   const parsed = earnSchema.safeParse({
     mode: formData.get("mode"),
@@ -32,28 +34,28 @@ export async function earnPointsAction(
   });
 
   if (!parsed.success) {
-    return { error: "Datos inválidos" };
+    return { error: t("invalidData") };
   }
 
   const customer = await prisma.customer.findFirst({
     where: { id: customerId, businessId: session.businessId },
   });
-  if (!customer) return { error: "Cliente no encontrado" };
+  if (!customer) return { error: t("customerNotFound") };
 
   const business = await prisma.business.findUnique({ where: { id: session.businessId } });
-  if (!business) return { error: "Negocio no encontrado" };
+  if (!business) return { error: t("businessNotFound") };
 
   let pointsToAdd = 0;
   let amount: number | null = null;
 
   if (parsed.data.mode === "amount") {
     amount = parsed.data.amount ?? 0;
-    if (amount <= 0) return { error: "Ingresá un monto válido" };
+    if (amount <= 0) return { error: t("invalidAmount") };
     pointsToAdd = Math.floor(amount * business.pointsPerCurrency);
-    if (pointsToAdd <= 0) return { error: "El monto no genera puntos" };
+    if (pointsToAdd <= 0) return { error: t("amountNoPoints") };
   } else {
     pointsToAdd = Math.floor(parsed.data.points ?? 0);
-    if (pointsToAdd <= 0) return { error: "Ingresá una cantidad de puntos válida" };
+    if (pointsToAdd <= 0) return { error: t("invalidPoints") };
   }
 
   await prisma.$transaction([
@@ -81,35 +83,36 @@ export async function earnPointsAction(
 }
 
 // Ajuste manual de puntos (puede ser positivo o negativo).
-const adjustSchema = z.object({
-  points: z.coerce.number().int(),
-  note: z.string().optional(),
-});
-
 export async function adjustPointsAction(
   customerId: string,
   _prev: ActionState,
   formData: FormData
 ): Promise<ActionState> {
   const session = await requireSession();
+  const t = await getTranslations("errors");
+
+  const adjustSchema = z.object({
+    points: z.coerce.number().int(),
+    note: z.string().optional(),
+  });
 
   const parsed = adjustSchema.safeParse({
     points: formData.get("points"),
     note: formData.get("note") || undefined,
   });
 
-  if (!parsed.success) return { error: "Ingresá un número válido (puede ser negativo)" };
+  if (!parsed.success) return { error: t("invalidNumber") };
 
   const delta = parsed.data.points;
-  if (delta === 0) return { error: "El ajuste no puede ser 0" };
+  if (delta === 0) return { error: t("adjustNotZero") };
 
   const customer = await prisma.customer.findFirst({
     where: { id: customerId, businessId: session.businessId },
   });
-  if (!customer) return { error: "Cliente no encontrado" };
+  if (!customer) return { error: t("customerNotFound") };
 
   if (customer.points + delta < 0) {
-    return { error: "El cliente no tiene suficientes puntos para ese ajuste" };
+    return { error: t("notEnoughForAdjust") };
   }
 
   await prisma.$transaction([

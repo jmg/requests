@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { logoutAction } from "@/lib/actions/auth";
 import { NavLink } from "@/components/NavLink";
 import { Logo } from "@/components/Logo";
+import { LocaleSwitcher } from "@/components/LocaleSwitcher";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const session = await getSession();
@@ -12,6 +14,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   const business = await prisma.business.findUnique({ where: { id: session.businessId } });
   if (!business) redirect("/login");
+
+  const t = await getTranslations("nav");
 
   return (
     <div className="min-h-screen lg:flex">
@@ -35,28 +39,28 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
           <nav className="flex flex-1 flex-col gap-1 overflow-y-auto p-3">
             <NavLink href="/dashboard" icon="🏠" exact>
-              Resumen
+              {t("summary")}
             </NavLink>
             <NavLink href="/dashboard/customers" icon="👥">
-              Clientes
+              {t("customers")}
             </NavLink>
             <NavLink href="/dashboard/rewards" icon="🎁">
-              Premios
+              {t("rewards")}
             </NavLink>
             <NavLink href="/dashboard/redemptions" icon="🎟️">
-              Canjes
+              {t("redemptions")}
             </NavLink>
             <NavLink href="/dashboard/transactions" icon="📈">
-              Movimientos
+              {t("transactions")}
             </NavLink>
             <NavLink href="/dashboard/reports" icon="📊">
-              Reportes
+              {t("reports")}
             </NavLink>
             <NavLink href="/dashboard/billing" icon="💳">
-              Plan
+              {t("plan")}
             </NavLink>
             <NavLink href="/dashboard/settings" icon="⚙️">
-              Configuración
+              {t("settings")}
             </NavLink>
             <a
               href={`/p/${business.slug}`}
@@ -65,18 +69,21 @@ export default async function DashboardLayout({ children }: { children: React.Re
               className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-600 transition hover:bg-gray-100"
             >
               <span className="text-lg">🔗</span>
-              Portal público ↗
+              {t("portal")} ↗
             </a>
           </nav>
 
           <div className="border-t border-gray-100 p-3">
-            <div className="px-2 pb-2">
-              <p className="truncate text-sm font-medium text-gray-700">{session.name}</p>
-              <p className="truncate text-xs text-gray-400">{session.email}</p>
+            <div className="flex items-center justify-between px-2 pb-2">
+              <div className="min-w-0">
+                <p className="truncate text-sm font-medium text-gray-700">{session.name}</p>
+                <p className="truncate text-xs text-gray-400">{session.email}</p>
+              </div>
+              <LocaleSwitcher />
             </div>
             <form action={logoutAction}>
               <button type="submit" className="btn-secondary w-full">
-                Cerrar sesión
+                {t("logout")}
               </button>
             </form>
           </div>

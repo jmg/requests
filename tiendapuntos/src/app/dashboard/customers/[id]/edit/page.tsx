@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { EditCustomerForm } from "@/components/customer/EditCustomerForm";
 
 export default async function EditCustomerPage({ params }: { params: { id: string } }) {
+  const t = await getTranslations("customers");
   const session = (await getSession())!;
   const customer = await prisma.customer.findFirst({
     where: { id: params.id, businessId: session.businessId },
@@ -19,9 +21,9 @@ export default async function EditCustomerPage({ params }: { params: { id: strin
           href={`/dashboard/customers/${customer.id}`}
           className="text-sm text-gray-500 hover:underline"
         >
-          ← Volver al cliente
+          {t("backToCustomer")}
         </Link>
-        <h1 className="mt-2 text-2xl font-bold">Editar cliente</h1>
+        <h1 className="mt-2 text-2xl font-bold">{t("editTitle")}</h1>
       </div>
       <EditCustomerForm customer={customer} />
     </div>

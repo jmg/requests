@@ -1,20 +1,13 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getTranslations } from "next-intl/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/auth";
 import { planConfig } from "@/lib/plans";
 
 export type ActionState = { error?: string; ok?: boolean } | undefined;
-
-const rewardSchema = z.object({
-  name: z.string().min(2, "El nombre es muy corto"),
-  description: z.string().optional(),
-  pointsCost: z.coerce.number().int().positive("El costo en puntos debe ser mayor a 0"),
-  stock: z.string().optional(),
-  active: z.union([z.literal("on"), z.null()]).optional(),
-});
 
 function parseStock(raw?: string): number | null {
   if (!raw || raw.trim() === "") return null; // ilimitado
@@ -28,6 +21,15 @@ export async function createRewardAction(
   formData: FormData
 ): Promise<ActionState> {
   const session = await requireSession();
+  const t = await getTranslations("errors");
+
+  const rewardSchema = z.object({
+    name: z.string().min(2, t("nameShort")),
+    description: z.string().optional(),
+    pointsCost: z.coerce.number().int().positive(t("pointsCostPositive")),
+    stock: z.string().optional(),
+    active: z.union([z.literal("on"), z.null()]).optional(),
+  });
 
   const parsed = rewardSchema.safeParse({
     name: formData.get("name"),
@@ -46,7 +48,7 @@ export async function createRewardAction(
     const count = await prisma.reward.count({ where: { businessId: session.businessId } });
     if (count >= limit) {
       return {
-        error: `Alcanzaste el límite de ${limit} premios del plan ${business!.plan}. Mejorá tu plan para crear más.`,
+        error: t("rewardLimit", { limit, plan: business!.plan }),
       };
     }
   }
@@ -72,6 +74,15 @@ export async function updateRewardAction(
   formData: FormData
 ): Promise<ActionState> {
   const session = await requireSession();
+  const t = await getTranslations("errors");
+
+  const rewardSchema = z.object({
+    name: z.string().min(2, t("nameShort")),
+    description: z.string().optional(),
+    pointsCost: z.coerce.number().int().positive(t("pointsCostPositive")),
+    stock: z.string().optional(),
+    active: z.union([z.literal("on"), z.null()]).optional(),
+  });
 
   const parsed = rewardSchema.safeParse({
     name: formData.get("name"),
@@ -86,7 +97,7 @@ export async function updateRewardAction(
   const reward = await prisma.reward.findFirst({
     where: { id: rewardId, businessId: session.businessId },
   });
-  if (!reward) return { error: "Premio no encontrado" };
+  if (!reward) return { error: t("rewardNotFound") };
 
   await prisma.reward.update({
     where: { id: rewardId },

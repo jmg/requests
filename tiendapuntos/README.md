@@ -43,6 +43,13 @@ Construida con **Next.js 14 (App Router)**, **Prisma** y **PostgreSQL**.
 - **QR del portal**: en Configuración se genera el QR del portal para imprimir/compartir.
 - **Carga rápida**: buscador en el panel para encontrar un cliente por teléfono/nombre/email y
   sumarle puntos al instante en el mostrador.
+- **Internacionalización (ES/EN)**: toda la interfaz está traducida con [`next-intl`](https://next-intl.dev).
+  El idioma se elige con el selector (arriba a la derecha / en el panel) y se guarda en una cookie
+  `locale`. Los textos viven en `src/messages/es.json` y `src/messages/en.json`. Para agregar un idioma,
+  sumá `xx.json` y el código en `src/i18n/request.ts`.
+
+> 📊 Ver **[COMPARISON.md](./COMPARISON.md)** para la comparativa de TiendaPuntos contra la competencia
+> internacional (Smile.io, Loyverse) y local en Argentina (Tienda de Puntos).
 
 ## 🛠️ Stack
 

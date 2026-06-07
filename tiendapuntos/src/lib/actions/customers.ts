@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/auth";
@@ -9,18 +10,19 @@ import { planConfig } from "@/lib/plans";
 
 export type ActionState = { error?: string; ok?: boolean } | undefined;
 
-const customerSchema = z.object({
-  name: z.string().min(2, "El nombre es muy corto"),
-  email: z.string().email("Email inválido").optional().or(z.literal("")),
-  phone: z.string().optional().or(z.literal("")),
-  notes: z.string().optional().or(z.literal("")),
-});
-
 export async function createCustomerAction(
   _prev: ActionState,
   formData: FormData
 ): Promise<ActionState> {
   const session = await requireSession();
+  const t = await getTranslations("errors");
+
+  const customerSchema = z.object({
+    name: z.string().min(2, t("nameShort")),
+    email: z.string().email(t("invalidEmail")).optional().or(z.literal("")),
+    phone: z.string().optional().or(z.literal("")),
+    notes: z.string().optional().or(z.literal("")),
+  });
 
   const parsed = customerSchema.safeParse({
     name: formData.get("name"),
@@ -40,7 +42,7 @@ export async function createCustomerAction(
     const count = await prisma.customer.count({ where: { businessId: session.businessId } });
     if (count >= limit) {
       return {
-        error: `Alcanzaste el límite de ${limit} clientes del plan ${business!.plan}. Mejorá tu plan para sumar más.`,
+        error: t("customerLimit", { limit, plan: business!.plan }),
       };
     }
   }
@@ -52,7 +54,7 @@ export async function createCustomerAction(
       where: { businessId_phone: { businessId: session.businessId, phone } },
     });
     if (dup) {
-      return { error: "Ya existe un cliente con ese teléfono" };
+      return { error: t("phoneTaken") };
     }
   }
 
@@ -76,6 +78,14 @@ export async function updateCustomerAction(
   formData: FormData
 ): Promise<ActionState> {
   const session = await requireSession();
+  const t = await getTranslations("errors");
+
+  const customerSchema = z.object({
+    name: z.string().min(2, t("nameShort")),
+    email: z.string().email(t("invalidEmail")).optional().or(z.literal("")),
+    phone: z.string().optional().or(z.literal("")),
+    notes: z.string().optional().or(z.literal("")),
+  });
 
   const parsed = customerSchema.safeParse({
     name: formData.get("name"),
@@ -91,14 +101,14 @@ export async function updateCustomerAction(
   const customer = await prisma.customer.findFirst({
     where: { id: customerId, businessId: session.businessId },
   });
-  if (!customer) return { error: "Cliente no encontrado" };
+  if (!customer) return { error: t("customerNotFound") };
 
   const phone = parsed.data.phone?.trim() || null;
   if (phone && phone !== customer.phone) {
     const dup = await prisma.customer.findUnique({
       where: { businessId_phone: { businessId: session.businessId, phone } },
     });
-    if (dup) return { error: "Ya existe un cliente con ese teléfono" };
+    if (dup) return { error: t("phoneTaken") };
   }
 
   await prisma.customer.update({

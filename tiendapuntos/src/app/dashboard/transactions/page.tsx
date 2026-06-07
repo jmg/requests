@@ -1,13 +1,8 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { formatNumber, formatDate, formatCurrency } from "@/lib/utils";
-
-const txMeta: Record<string, { label: string; cls: string }> = {
-  EARN: { label: "Suma", cls: "bg-brand-100 text-brand-700" },
-  REDEEM: { label: "Canje", cls: "bg-amber-100 text-amber-700" },
-  ADJUST: { label: "Ajuste", cls: "bg-gray-100 text-gray-600" },
-};
 
 const PAGE_SIZE = 50;
 
@@ -16,6 +11,14 @@ export default async function TransactionsPage({
 }: {
   searchParams: { page?: string };
 }) {
+  const tt = await getTranslations("transactions");
+  const tType = await getTranslations("txType");
+  const txMeta: Record<string, { label: string; cls: string }> = {
+    EARN: { label: tType("EARN"), cls: "bg-brand-100 text-brand-700" },
+    REDEEM: { label: tType("REDEEM"), cls: "bg-amber-100 text-amber-700" },
+    ADJUST: { label: tType("ADJUST"), cls: "bg-gray-100 text-gray-600" },
+  };
+
   const session = (await getSession())!;
   const page = Math.max(1, Number(searchParams.page) || 1);
   const business = await prisma.business.findUnique({ where: { id: session.businessId } });
@@ -37,23 +40,23 @@ export default async function TransactionsPage({
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">Movimientos</h1>
-        <p className="text-sm text-gray-500">{formatNumber(total)} movimientos registrados</p>
+        <h1 className="text-2xl font-bold">{tt("title")}</h1>
+        <p className="text-sm text-gray-500">{tt("count", { count: formatNumber(total) })}</p>
       </div>
 
       <div className="card overflow-hidden p-0">
         {transactions.length === 0 ? (
-          <div className="p-10 text-center text-sm text-gray-500">Sin movimientos aún.</div>
+          <div className="p-10 text-center text-sm text-gray-500">{tt("empty")}</div>
         ) : (
           <table className="w-full text-sm">
             <thead className="border-b border-gray-100 bg-gray-50 text-left text-xs uppercase text-gray-500">
               <tr>
-                <th className="px-4 py-3">Fecha</th>
-                <th className="px-4 py-3">Cliente</th>
-                <th className="px-4 py-3">Tipo</th>
-                <th className="px-4 py-3">Detalle</th>
-                <th className="px-4 py-3">Cargado por</th>
-                <th className="px-4 py-3 text-right">Puntos</th>
+                <th className="px-4 py-3">{tt("colDate")}</th>
+                <th className="px-4 py-3">{tt("colCustomer")}</th>
+                <th className="px-4 py-3">{tt("colType")}</th>
+                <th className="px-4 py-3">{tt("colDetail")}</th>
+                <th className="px-4 py-3">{tt("colBy")}</th>
+                <th className="px-4 py-3 text-right">{tt("colPoints")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -104,16 +107,16 @@ export default async function TransactionsPage({
             href={`/dashboard/transactions?page=${page - 1}`}
             className={`btn-secondary ${page <= 1 ? "pointer-events-none opacity-40" : ""}`}
           >
-            ← Anterior
+            {tt("prev")}
           </Link>
           <span className="text-gray-500">
-            Página {page} de {totalPages}
+            {tt("page", { page, total: totalPages })}
           </span>
           <Link
             href={`/dashboard/transactions?page=${page + 1}`}
             className={`btn-secondary ${page >= totalPages ? "pointer-events-none opacity-40" : ""}`}
           >
-            Siguiente →
+            {tt("next")}
           </Link>
         </div>
       )}

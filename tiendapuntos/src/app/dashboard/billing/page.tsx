@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { PLANS, planConfig } from "@/lib/plans";
@@ -32,6 +33,8 @@ export default async function BillingPage({
 }: {
   searchParams: { success?: string; canceled?: string };
 }) {
+  const t = await getTranslations("billing");
+  const tp = await getTranslations("plans");
   const session = (await getSession())!;
   const business = await prisma.business.findUnique({ where: { id: session.businessId } });
   if (!business) return null;
@@ -39,6 +42,23 @@ export default async function BillingPage({
   const isStaff = session.role === "STAFF";
   const current = planConfig(business.plan);
   const stripeOn = stripeEnabled();
+
+  // Datos de presentación de cada plan, traducidos (la lógica/los límites
+  // siguen viniendo de PLANS en lib/plans.ts).
+  const planDisplay = {
+    FREE: {
+      name: tp("freeName"),
+      price: tp("freePrice"),
+      detail: t("forever"),
+      features: [tp("free1"), tp("free2"), tp("free3"), tp("free4")],
+    },
+    PRO: {
+      name: tp("proName"),
+      price: tp("proPrice"),
+      detail: t("perMonth"),
+      features: [tp("pro1"), tp("pro2"), tp("pro3"), tp("pro4"), tp("pro5"), tp("pro6")],
+    },
+  } as const;
 
   const [customerCount, rewardCount, teamCount] = await Promise.all([
     prisma.customer.count({ where: { businessId: business.id } }),
@@ -49,55 +69,50 @@ export default async function BillingPage({
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">Plan y suscripción</h1>
+        <h1 className="text-2xl font-bold">{t("title")}</h1>
         <p className="text-sm text-gray-500">
-          Estás en el plan <span className="font-semibold text-brand-700">{current.name}</span> desde{" "}
-          {formatDate(business.planSince)}.
+          {t("currentPlan", {
+            plan: planDisplay[business.plan].name,
+            date: formatDate(business.planSince),
+          })}
         </p>
       </div>
 
       {searchParams.success && (
-        <div className="card bg-brand-50 text-sm text-brand-800">
-          ¡Pago confirmado! Tu plan Pro ya está activo. 🎉
-        </div>
+        <div className="card bg-brand-50 text-sm text-brand-800">{t("successMsg")}</div>
       )}
       {searchParams.canceled && (
-        <div className="card bg-amber-50 text-sm text-amber-800">
-          El pago se canceló. Seguís en tu plan actual.
-        </div>
+        <div className="card bg-amber-50 text-sm text-amber-800">{t("canceledMsg")}</div>
       )}
 
       <div className="card space-y-4">
-        <h2 className="text-lg font-semibold">Uso actual</h2>
-        <UsageBar label="Clientes" used={customerCount} limit={current.customerLimit} />
-        <UsageBar label="Premios" used={rewardCount} limit={current.rewardLimit} />
-        <UsageBar label="Usuarios del equipo" used={teamCount} limit={current.teamLimit} />
+        <h2 className="text-lg font-semibold">{t("usage")}</h2>
+        <UsageBar label={t("usageCustomers")} used={customerCount} limit={current.customerLimit} />
+        <UsageBar label={t("usageRewards")} used={rewardCount} limit={current.rewardLimit} />
+        <UsageBar label={t("usageTeam")} used={teamCount} limit={current.teamLimit} />
       </div>
 
-      {isStaff && (
-        <div className="card text-sm text-gray-500">
-          Sólo el dueño o administradores pueden cambiar el plan.
-        </div>
-      )}
+      {isStaff && <div className="card text-sm text-gray-500">{t("staffNote")}</div>}
 
       <div className="grid gap-5 sm:grid-cols-2">
         {Object.values(PLANS).map((p) => {
           const isCurrent = p.id === business.plan;
+          const d = planDisplay[p.id];
           return (
             <div
               key={p.id}
               className={`card flex flex-col ${isCurrent ? "ring-2 ring-brand-500" : ""}`}
             >
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-bold">{p.name}</h3>
-                {isCurrent && <span className="badge bg-brand-100 text-brand-700">Tu plan</span>}
+                <h3 className="text-lg font-bold">{d.name}</h3>
+                {isCurrent && <span className="badge bg-brand-100 text-brand-700">{t("yourPlan")}</span>}
               </div>
               <p className="mt-2">
-                <span className="text-3xl font-extrabold">{p.price}</span>{" "}
-                <span className="text-sm text-gray-500">{p.priceDetail}</span>
+                <span className="text-3xl font-extrabold">{d.price}</span>{" "}
+                <span className="text-sm text-gray-500">{d.detail}</span>
               </p>
               <ul className="mt-4 flex-1 space-y-2 text-sm text-gray-600">
-                {p.features.map((f) => (
+                {d.features.map((f) => (
                   <li key={f} className="flex items-start gap-2">
                     <span className="text-brand-600">✓</span> {f}
                   </li>
@@ -107,7 +122,7 @@ export default async function BillingPage({
                 <div className="mt-5">
                   {isCurrent ? (
                     <button className="btn-secondary w-full" disabled>
-                      Plan actual
+                      {t("currentButton")}
                     </button>
                   ) : p.id === "PRO" ? (
                     <UpgradeButton className="btn-primary w-full" />
@@ -121,11 +136,7 @@ export default async function BillingPage({
         })}
       </div>
 
-      <p className="text-xs text-gray-400">
-        {stripeOn
-          ? "Pagos procesados con Stripe Checkout. La gestión de la suscripción se sincroniza por webhook."
-          : "Stripe no está configurado: el cambio de plan funciona en modo simulado (sin cobro real). Configurá STRIPE_SECRET_KEY y STRIPE_PRICE_PRO para activar pagos."}
-      </p>
+      <p className="text-xs text-gray-400">{stripeOn ? t("stripeOn") : t("stripeOff")}</p>
     </div>
   );
 }

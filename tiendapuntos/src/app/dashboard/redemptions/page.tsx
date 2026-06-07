@@ -1,21 +1,24 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { fulfillRedemptionAction, cancelRedemptionAction } from "@/lib/actions/redemptions";
 import { formatNumber, formatDate } from "@/lib/utils";
 import { ConfirmButton } from "@/components/ConfirmButton";
 
-const statusMeta: Record<string, { label: string; cls: string }> = {
-  PENDING: { label: "Pendiente", cls: "bg-amber-100 text-amber-700" },
-  FULFILLED: { label: "Entregado", cls: "bg-brand-100 text-brand-700" },
-  CANCELLED: { label: "Cancelado", cls: "bg-red-100 text-red-700" },
-};
-
 export default async function RedemptionsPage({
   searchParams,
 }: {
   searchParams: { status?: string };
 }) {
+  const t = await getTranslations("redemptions");
+  const ts = await getTranslations("redemptionStatus");
+  const statusMeta: Record<string, { label: string; cls: string }> = {
+    PENDING: { label: ts("PENDING"), cls: "bg-amber-100 text-amber-700" },
+    FULFILLED: { label: ts("FULFILLED"), cls: "bg-brand-100 text-brand-700" },
+    CANCELLED: { label: ts("CANCELLED"), cls: "bg-red-100 text-red-700" },
+  };
+
   const session = (await getSession())!;
   const status = searchParams.status;
   const business = await prisma.business.findUnique({ where: { id: session.businessId } });
@@ -34,15 +37,15 @@ export default async function RedemptionsPage({
   });
 
   const filters = [
-    { key: "", label: "Todos" },
-    { key: "PENDING", label: "Pendientes" },
-    { key: "FULFILLED", label: "Entregados" },
-    { key: "CANCELLED", label: "Cancelados" },
+    { key: "", label: t("filterAll") },
+    { key: "PENDING", label: t("filterPending") },
+    { key: "FULFILLED", label: t("filterFulfilled") },
+    { key: "CANCELLED", label: t("filterCancelled") },
   ];
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Canjes</h1>
+      <h1 className="text-2xl font-bold">{t("title")}</h1>
 
       <div className="flex flex-wrap gap-2">
         {filters.map((f) => {
@@ -63,17 +66,17 @@ export default async function RedemptionsPage({
 
       <div className="card overflow-hidden p-0">
         {redemptions.length === 0 ? (
-          <div className="p-10 text-center text-sm text-gray-500">No hay canjes para mostrar.</div>
+          <div className="p-10 text-center text-sm text-gray-500">{t("empty")}</div>
         ) : (
           <table className="w-full text-sm">
             <thead className="border-b border-gray-100 bg-gray-50 text-left text-xs uppercase text-gray-500">
               <tr>
-                <th className="px-4 py-3">Código</th>
-                <th className="px-4 py-3">Cliente</th>
-                <th className="px-4 py-3">Premio</th>
+                <th className="px-4 py-3">{t("colCode")}</th>
+                <th className="px-4 py-3">{t("colCustomer")}</th>
+                <th className="px-4 py-3">{t("colReward")}</th>
                 <th className="px-4 py-3 text-right">{pointsName}</th>
-                <th className="px-4 py-3">Estado</th>
-                <th className="px-4 py-3">Acciones</th>
+                <th className="px-4 py-3">{t("colStatus")}</th>
+                <th className="px-4 py-3">{t("colActions")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -105,15 +108,15 @@ export default async function RedemptionsPage({
                         <div className="flex gap-2">
                           <form action={fulfill}>
                             <button className="btn-primary px-2.5 py-1 text-xs" type="submit">
-                              Entregar
+                              {t("deliver")}
                             </button>
                           </form>
                           <ConfirmButton
                             action={cancel}
-                            confirm="¿Cancelar el canje y devolver los puntos?"
+                            confirm={t("confirmCancel")}
                             className="btn-secondary px-2.5 py-1 text-xs"
                           >
-                            Cancelar
+                            {t("cancel")}
                           </ConfirmButton>
                         </div>
                       ) : (

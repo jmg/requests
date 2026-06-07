@@ -1,46 +1,49 @@
 "use client";
 
 import { useFormState } from "react-dom";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { createCustomerAction } from "@/lib/actions/customers";
 import { SubmitButton } from "@/components/SubmitButton";
 
 export default function NewCustomerPage() {
+  const t = useTranslations("customers");
+  const tc = useTranslations("common");
   const [state, formAction] = useFormState(createCustomerAction, undefined);
 
   return (
     <div className="mx-auto max-w-lg space-y-6">
       <div>
         <Link href="/dashboard/customers" className="text-sm text-gray-500 hover:underline">
-          ← Volver a clientes
+          {t("backToList")}
         </Link>
-        <h1 className="mt-2 text-2xl font-bold">Nuevo cliente</h1>
+        <h1 className="mt-2 text-2xl font-bold">{t("newTitle")}</h1>
       </div>
 
       <form action={formAction} className="card space-y-4">
         <div>
           <label className="label" htmlFor="name">
-            Nombre y apellido *
+            {t("fullName")} *
           </label>
           <input className="input" id="name" name="name" required autoFocus />
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <label className="label" htmlFor="phone">
-              Teléfono
+              {t("phone")}
             </label>
             <input className="input" id="phone" name="phone" placeholder="+54 11 …" />
           </div>
           <div>
             <label className="label" htmlFor="email">
-              Email
+              {t("email")}
             </label>
             <input className="input" id="email" name="email" type="email" />
           </div>
         </div>
         <div>
           <label className="label" htmlFor="notes">
-            Notas
+            {t("notes")}
           </label>
           <textarea className="input" id="notes" name="notes" rows={3} />
         </div>
@@ -51,9 +54,9 @@ export default function NewCustomerPage() {
 
         <div className="flex justify-end gap-2">
           <Link href="/dashboard/customers" className="btn-secondary">
-            Cancelar
+            {tc("cancel")}
           </Link>
-          <SubmitButton pendingText="Guardando…">Crear cliente</SubmitButton>
+          <SubmitButton pendingText={tc("saving")}>{t("createCustomer")}</SubmitButton>
         </div>
       </form>
     </div>

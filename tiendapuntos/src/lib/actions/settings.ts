@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getTranslations } from "next-intl/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireSession, hashPassword } from "@/lib/auth";
@@ -8,21 +9,22 @@ import { planConfig } from "@/lib/plans";
 
 export type ActionState = { error?: string; ok?: boolean } | undefined;
 
-const businessSchema = z.object({
-  name: z.string().min(2, "El nombre es muy corto"),
-  pointsName: z.string().min(1, "Ingresá el nombre de los puntos"),
-  pointsPerCurrency: z.coerce.number().positive("Debe ser un número mayor a 0"),
-  currency: z.string().min(1).max(5),
-  brandColor: z.string().regex(/^#[0-9a-fA-F]{6}$/, "Color inválido"),
-  logoEmoji: z.string().min(1).max(4),
-});
-
 export async function updateBusinessAction(
   _prev: ActionState,
   formData: FormData
 ): Promise<ActionState> {
   const session = await requireSession();
-  if (session.role === "STAFF") return { error: "No tenés permisos para esto" };
+  const t = await getTranslations("errors");
+  if (session.role === "STAFF") return { error: t("noPermission") };
+
+  const businessSchema = z.object({
+    name: z.string().min(2, t("nameShort")),
+    pointsName: z.string().min(1, t("pointsNameRequired")),
+    pointsPerCurrency: z.coerce.number().positive(t("positiveNumber")),
+    currency: z.string().min(1).max(5),
+    brandColor: z.string().regex(/^#[0-9a-fA-F]{6}$/, t("invalidColor")),
+    logoEmoji: z.string().min(1).max(4),
+  });
 
   const parsed = businessSchema.safeParse({
     name: formData.get("name"),
@@ -55,7 +57,8 @@ export async function updateBusinessAction(
 // Cambio de plan (simulado: sin pasarela de pago real).
 export async function changePlanAction(plan: "FREE" | "PRO"): Promise<ActionState> {
   const session = await requireSession();
-  if (session.role === "STAFF") return { error: "No tenés permisos para esto" };
+  const t = await getTranslations("errors");
+  if (session.role === "STAFF") return { error: t("noPermission") };
 
   await prisma.business.update({
     where: { id: session.businessId },
@@ -68,19 +71,20 @@ export async function changePlanAction(plan: "FREE" | "PRO"): Promise<ActionStat
 }
 
 // Invitar / crear un usuario adicional para el negocio (equipo).
-const teamSchema = z.object({
-  name: z.string().min(2, "Ingresá el nombre"),
-  email: z.string().email("Email inválido"),
-  password: z.string().min(6, "Mínimo 6 caracteres"),
-  role: z.enum(["ADMIN", "STAFF"]),
-});
-
 export async function createTeamMemberAction(
   _prev: ActionState,
   formData: FormData
 ): Promise<ActionState> {
   const session = await requireSession();
-  if (session.role === "STAFF") return { error: "No tenés permisos para esto" };
+  const t = await getTranslations("errors");
+  if (session.role === "STAFF") return { error: t("noPermission") };
+
+  const teamSchema = z.object({
+    name: z.string().min(2, t("enterYourName")),
+    email: z.string().email(t("invalidEmail")),
+    password: z.string().min(6, t("passwordMin")),
+    role: z.enum(["ADMIN", "STAFF"]),
+  });
 
   const parsed = teamSchema.safeParse({
     name: formData.get("name"),
@@ -93,7 +97,7 @@ export async function createTeamMemberAction(
 
   const email = parsed.data.email.toLowerCase().trim();
   const existing = await prisma.user.findUnique({ where: { email } });
-  if (existing) return { error: "Ya existe un usuario con ese email" };
+  if (existing) return { error: t("userExists") };
 
   // Límite de equipo del plan
   const business = await prisma.business.findUnique({ where: { id: session.businessId } });
@@ -102,7 +106,7 @@ export async function createTeamMemberAction(
     const count = await prisma.user.count({ where: { businessId: session.businessId } });
     if (count >= teamLimit) {
       return {
-        error: `Alcanzaste el límite de ${teamLimit} usuarios del plan ${business!.plan}. Mejorá tu plan para sumar más.`,
+        error: t("teamLimit", { limit: teamLimit, plan: business!.plan }),
       };
     }
   }
@@ -123,14 +127,15 @@ export async function createTeamMemberAction(
 
 export async function deleteTeamMemberAction(userId: string): Promise<ActionState> {
   const session = await requireSession();
-  if (session.role === "STAFF") return { error: "No tenés permisos para esto" };
-  if (userId === session.userId) return { error: "No podés eliminar tu propio usuario" };
+  const t = await getTranslations("errors");
+  if (session.role === "STAFF") return { error: t("noPermission") };
+  if (userId === session.userId) return { error: t("cannotDeleteSelf") };
 
   const target = await prisma.user.findFirst({
     where: { id: userId, businessId: session.businessId },
   });
-  if (!target) return { error: "Usuario no encontrado" };
-  if (target.role === "OWNER") return { error: "No se puede eliminar al dueño" };
+  if (!target) return { error: t("userNotFound") };
+  if (target.role === "OWNER") return { error: t("cannotDeleteOwner") };
 
   await prisma.user.delete({ where: { id: userId } });
   revalidatePath("/dashboard/settings");

@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
 import { formatNumber } from "@/lib/utils";
 import { PortalLookup } from "@/components/portal/PortalLookup";
@@ -14,6 +15,7 @@ export async function generateMetadata({
 }
 
 export default async function PortalPage({ params }: { params: { slug: string } }) {
+  const t = await getTranslations("portal");
   const business = await prisma.business.findUnique({ where: { slug: params.slug } });
   if (!business) notFound();
 
@@ -30,13 +32,13 @@ export default async function PortalPage({ params }: { params: { slug: string } 
             {business.logoEmoji}
           </span>
           <h1 className="mt-4 text-2xl font-bold">{business.name}</h1>
-          <p className="mt-1 text-sm opacity-90">Consultá tus {business.pointsName} y premios</p>
+          <p className="mt-1 text-sm opacity-90">{t("subtitle", { points: business.pointsName })}</p>
         </div>
       </header>
 
       <main className="mx-auto max-w-lg space-y-8 px-6 py-8">
         <div className="card">
-          <h2 className="mb-3 text-lg font-semibold">Mi cuenta</h2>
+          <h2 className="mb-3 text-lg font-semibold">{t("myAccount")}</h2>
           <PortalLookup
             slug={business.slug}
             pointsName={business.pointsName}
@@ -45,9 +47,9 @@ export default async function PortalPage({ params }: { params: { slug: string } 
         </div>
 
         <div className="card">
-          <h2 className="mb-3 text-lg font-semibold">Premios disponibles</h2>
+          <h2 className="mb-3 text-lg font-semibold">{t("availableRewards")}</h2>
           {rewards.length === 0 ? (
-            <p className="text-sm text-gray-500">Todavía no hay premios cargados.</p>
+            <p className="text-sm text-gray-500">{t("noRewards")}</p>
           ) : (
             <ul className="divide-y divide-gray-100">
               {rewards.map((r) => (
@@ -69,7 +71,7 @@ export default async function PortalPage({ params }: { params: { slug: string } 
         </div>
 
         <p className="text-center text-xs text-gray-400">
-          Programa de fidelización de {business.name}
+          {t("footer", { business: business.name })}
         </p>
       </main>
     </div>

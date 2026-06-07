@@ -3,6 +3,7 @@
 import { randomBytes } from "crypto";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireSession, hashPassword, createSession } from "@/lib/auth";
@@ -12,11 +13,6 @@ import { inviteUrl } from "@/lib/app-url";
 
 export type ActionState = { error?: string; ok?: boolean; link?: string } | undefined;
 
-const inviteSchema = z.object({
-  email: z.string().email("Email inválido"),
-  role: z.enum(["ADMIN", "STAFF"]),
-});
-
 const INVITE_TTL_DAYS = 7;
 
 export async function createInvitationAction(
@@ -24,7 +20,13 @@ export async function createInvitationAction(
   formData: FormData
 ): Promise<ActionState> {
   const session = await requireSession();
-  if (session.role === "STAFF") return { error: "No tenés permisos para esto" };
+  const t = await getTranslations("errors");
+  if (session.role === "STAFF") return { error: t("noPermission") };
+
+  const inviteSchema = z.object({
+    email: z.string().email(t("invalidEmail")),
+    role: z.enum(["ADMIN", "STAFF"]),
+  });
 
   const parsed = inviteSchema.safeParse({
     email: formData.get("email"),
@@ -35,7 +37,7 @@ export async function createInvitationAction(
   const email = parsed.data.email.toLowerCase().trim();
 
   const existingUser = await prisma.user.findUnique({ where: { email } });
-  if (existingUser) return { error: "Ya existe un usuario con ese email" };
+  if (existingUser) return { error: t("userExists") };
 
   // El cupo de equipo del plan cuenta usuarios actuales + invitaciones pendientes.
   const business = await prisma.business.findUnique({ where: { id: session.businessId } });
@@ -49,7 +51,7 @@ export async function createInvitationAction(
     ]);
     if (users + pending >= teamLimit) {
       return {
-        error: `Tu plan ${business!.plan} permite hasta ${teamLimit} miembros (incluyendo invitaciones pendientes). Mejorá tu plan para sumar más.`,
+        error: t("teamLimitInvite", { plan: business!.plan, limit: teamLimit }),
       };
     }
   }
@@ -83,16 +85,18 @@ export async function revokeInvitationAction(invitationId: string): Promise<void
   revalidatePath("/dashboard/settings");
 }
 
-const acceptSchema = z.object({
-  name: z.string().min(2, "Ingresá tu nombre"),
-  password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres"),
-});
-
 export async function acceptInvitationAction(
   token: string,
   _prev: ActionState,
   formData: FormData
 ): Promise<ActionState> {
+  const t = await getTranslations("errors");
+
+  const acceptSchema = z.object({
+    name: z.string().min(2, t("enterYourName")),
+    password: z.string().min(6, t("passwordMin")),
+  });
+
   const parsed = acceptSchema.safeParse({
     name: formData.get("name"),
     password: formData.get("password"),
@@ -101,11 +105,11 @@ export async function acceptInvitationAction(
 
   const invitation = await prisma.invitation.findUnique({ where: { token } });
   if (!invitation || invitation.acceptedAt || invitation.expiresAt < new Date()) {
-    return { error: "La invitación no es válida o expiró" };
+    return { error: t("inviteInvalid") };
   }
 
   const existingUser = await prisma.user.findUnique({ where: { email: invitation.email } });
-  if (existingUser) return { error: "Ya existe una cuenta con ese email" };
+  if (existingUser) return { error: t("emailTaken") };
 
   const user = await prisma.user.create({
     data: {

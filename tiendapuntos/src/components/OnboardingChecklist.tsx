@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 export type OnboardingStep = {
   done: boolean;
@@ -9,6 +10,7 @@ export type OnboardingStep = {
 };
 
 export function OnboardingChecklist({ steps }: { steps: OnboardingStep[] }) {
+  const t = useTranslations("onboarding");
   const doneCount = steps.filter((s) => s.done).length;
   const pct = Math.round((doneCount / steps.length) * 100);
 
@@ -16,10 +18,8 @@ export function OnboardingChecklist({ steps }: { steps: OnboardingStep[] }) {
     <div className="card border-brand-200 bg-brand-50/50">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-semibold">👋 Bienvenido/a, empecemos</h2>
-          <p className="text-sm text-gray-600">
-            Completá estos pasos para poner en marcha tu programa de puntos.
-          </p>
+          <h2 className="text-lg font-semibold">{t("title")}</h2>
+          <p className="text-sm text-gray-600">{t("subtitle")}</p>
         </div>
         <span className="badge bg-brand-100 text-brand-700">
           {doneCount}/{steps.length}

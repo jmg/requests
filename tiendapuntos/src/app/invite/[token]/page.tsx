@@ -1,15 +1,12 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
 import { Logo } from "@/components/Logo";
 import { AcceptInviteForm } from "@/components/invite/AcceptInviteForm";
 
-const roleLabels: Record<string, string> = {
-  ADMIN: "Administrador",
-  STAFF: "Cajero",
-  OWNER: "Dueño",
-};
-
 export default async function InvitePage({ params }: { params: { token: string } }) {
+  const t = await getTranslations("invite");
+  const tr = await getTranslations("roles");
   const invitation = await prisma.invitation.findUnique({
     where: { token: params.token },
     include: { business: true },
@@ -25,24 +22,19 @@ export default async function InvitePage({ params }: { params: { token: string }
       <div className="w-full max-w-md card">
         {invalid ? (
           <div className="text-center">
-            <h1 className="text-xl font-bold">Invitación no válida</h1>
+            <h1 className="text-xl font-bold">{t("invalidTitle")}</h1>
             <p className="mt-2 text-sm text-gray-500">
-              Esta invitación no existe, ya fue usada o expiró. Pedile al negocio que te envíe una
-              nueva.
+              {t("invalidText")}
             </p>
             <Link href="/login" className="btn-secondary mt-6">
-              Ir al inicio de sesión
+              {t("goLogin")}
             </Link>
           </div>
         ) : (
           <>
-            <h1 className="text-xl font-bold">Sumate a {invitation!.business.name}</h1>
+            <h1 className="text-xl font-bold">{t("joinTitle", { business: invitation!.business.name })}</h1>
             <p className="mt-1 text-sm text-gray-500">
-              Te invitaron como{" "}
-              <span className="font-medium text-gray-700">
-                {roleLabels[invitation!.role] ?? invitation!.role}
-              </span>
-              . Creá tu cuenta para empezar.
+              {t("invitedAs", { role: tr(invitation!.role) })}
             </p>
             <AcceptInviteForm token={params.token} email={invitation!.email} />
           </>

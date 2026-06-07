@@ -1,6 +1,7 @@
 "use client";
 
 import { useFormState } from "react-dom";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -16,6 +17,8 @@ type Customer = {
 };
 
 export function EditCustomerForm({ customer }: { customer: Customer }) {
+  const t = useTranslations("customers");
+  const tc = useTranslations("common");
   const router = useRouter();
   const action = updateCustomerAction.bind(null, customer.id);
   const [state, formAction] = useFormState(action, undefined);
@@ -28,20 +31,20 @@ export function EditCustomerForm({ customer }: { customer: Customer }) {
     <form action={formAction} className="card space-y-4">
       <div>
         <label className="label" htmlFor="name">
-          Nombre y apellido *
+          {t("fullName")} *
         </label>
         <input className="input" id="name" name="name" defaultValue={customer.name} required />
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <label className="label" htmlFor="phone">
-            Teléfono
+            {t("phone")}
           </label>
           <input className="input" id="phone" name="phone" defaultValue={customer.phone ?? ""} />
         </div>
         <div>
           <label className="label" htmlFor="email">
-            Email
+            {t("email")}
           </label>
           <input
             className="input"
@@ -54,7 +57,7 @@ export function EditCustomerForm({ customer }: { customer: Customer }) {
       </div>
       <div>
         <label className="label" htmlFor="notes">
-          Notas
+          {t("notes")}
         </label>
         <textarea className="input" id="notes" name="notes" rows={3} defaultValue={customer.notes ?? ""} />
       </div>
@@ -65,9 +68,9 @@ export function EditCustomerForm({ customer }: { customer: Customer }) {
 
       <div className="flex justify-end gap-2">
         <Link href={`/dashboard/customers/${customer.id}`} className="btn-secondary">
-          Cancelar
+          {tc("cancel")}
         </Link>
-        <SubmitButton pendingText="Guardando…">Guardar cambios</SubmitButton>
+        <SubmitButton pendingText={tc("saving")}>{tc("saveChanges")}</SubmitButton>
       </div>
     </form>
   );

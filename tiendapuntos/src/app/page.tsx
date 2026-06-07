@@ -1,72 +1,47 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { Logo } from "@/components/Logo";
+import { LocaleSwitcher } from "@/components/LocaleSwitcher";
 
-const features = [
-  {
-    icon: "👥",
-    title: "Base de clientes",
-    text: "Registrá a tus clientes con su teléfono o email y tené todo su historial a mano.",
-  },
-  {
-    icon: "⭐",
-    title: "Sumá puntos",
-    text: "Cargá puntos por monto de compra o cantidad fija. Vos definís cuántos puntos vale cada peso.",
-  },
-  {
-    icon: "🎁",
-    title: "Catálogo de premios",
-    text: "Creá premios canjeables, controlá el stock y generá códigos de canje al instante.",
-  },
-  {
-    icon: "📊",
-    title: "Métricas en vivo",
-    text: "Mirá cuántos puntos emitiste, cuántos se canjearon y quiénes son tus mejores clientes.",
-  },
-  {
-    icon: "🧑‍🤝‍🧑",
-    title: "Multiusuario",
-    text: "Sumá a tu equipo con roles (dueño, admin y cajero) para que carguen puntos sin acceso total.",
-  },
-  {
-    icon: "🔒",
-    title: "Datos aislados",
-    text: "Cada negocio tiene su propio espacio. Tus clientes y premios son sólo tuyos.",
-  },
-];
+export default async function HomePage() {
+  const t = await getTranslations("landing");
 
-export default function HomePage() {
+  const features = [
+    { icon: "👥", title: t("f1Title"), text: t("f1Text") },
+    { icon: "⭐", title: t("f2Title"), text: t("f2Text") },
+    { icon: "🎁", title: t("f3Title"), text: t("f3Text") },
+    { icon: "📊", title: t("f4Title"), text: t("f4Text") },
+    { icon: "🧑‍🤝‍🧑", title: t("f5Title"), text: t("f5Text") },
+    { icon: "🔒", title: t("f6Title"), text: t("f6Text") },
+  ];
+
   return (
     <div className="min-h-screen bg-white">
       <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
         <Logo className="text-xl" />
         <nav className="flex items-center gap-3">
+          <LocaleSwitcher />
           <Link href="/login" className="btn-secondary">
-            Ingresar
+            {t("signIn")}
           </Link>
           <Link href="/register" className="btn-primary">
-            Crear cuenta
+            {t("signUp")}
           </Link>
         </nav>
       </header>
 
       <section className="mx-auto max-w-6xl px-6 pb-16 pt-12 text-center">
-        <span className="badge bg-brand-100 text-brand-700">
-          Programa de fidelización para tu negocio
-        </span>
+        <span className="badge bg-brand-100 text-brand-700">{t("badge")}</span>
         <h1 className="mx-auto mt-6 max-w-3xl text-4xl font-extrabold tracking-tight text-gray-900 sm:text-5xl">
-          Premiá a tus clientes y hacé que vuelvan
+          {t("heroTitle")}
         </h1>
-        <p className="mx-auto mt-5 max-w-2xl text-lg text-gray-600">
-          TiendaPuntos es la forma simple de armar tu propio sistema de puntos: sumá puntos por cada
-          compra y dejá que tus clientes los canjeen por premios. Sin tarjetas de plástico, todo
-          desde tu panel.
-        </p>
+        <p className="mx-auto mt-5 max-w-2xl text-lg text-gray-600">{t("heroSubtitle")}</p>
         <div className="mt-8 flex justify-center gap-3">
           <Link href="/register" className="btn-primary px-6 py-3 text-base">
-            Empezar gratis
+            {t("ctaStart")}
           </Link>
           <Link href="/login" className="btn-secondary px-6 py-3 text-base">
-            Ya tengo cuenta
+            {t("ctaHave")}
           </Link>
         </div>
       </section>
@@ -85,21 +60,19 @@ export default function HomePage() {
 
       <section className="bg-brand-600 py-16 text-center text-white">
         <div className="mx-auto max-w-3xl px-6">
-          <h2 className="text-3xl font-bold">Listo en 2 minutos</h2>
-          <p className="mt-3 text-brand-100">
-            Creá tu cuenta, cargá tus premios y empezá a sumar puntos hoy mismo.
-          </p>
+          <h2 className="text-3xl font-bold">{t("ctaSectionTitle")}</h2>
+          <p className="mt-3 text-brand-100">{t("ctaSectionText")}</p>
           <Link
             href="/register"
             className="btn mt-6 bg-white px-6 py-3 text-base text-brand-700 hover:bg-brand-50"
           >
-            Crear mi cuenta
+            {t("ctaSectionButton")}
           </Link>
         </div>
       </section>
 
       <footer className="mx-auto max-w-6xl px-6 py-8 text-center text-sm text-gray-500">
-        <Logo /> — Demo de programa de fidelización · {new Date().getFullYear()}
+        <Logo /> — {t("footer")} · {new Date().getFullYear()}
       </footer>
     </div>
   );

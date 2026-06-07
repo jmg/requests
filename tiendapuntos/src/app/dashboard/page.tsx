@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { formatNumber, formatDate } from "@/lib/utils";
@@ -8,6 +9,8 @@ import { QuickFind } from "@/components/QuickFind";
 export default async function DashboardPage() {
   const session = (await getSession())!;
   const businessId = session.businessId;
+  const t = await getTranslations("dashboard");
+  const to = await getTranslations("onboarding");
 
   const business = await prisma.business.findUnique({ where: { id: businessId } });
   const pointsName = business?.pointsName ?? "puntos";
@@ -53,44 +56,44 @@ export default async function DashboardPage() {
   const onboardingSteps: OnboardingStep[] = [
     {
       done: brandingDone,
-      label: "Personalizá tu marca",
-      desc: "Elegí el color e ícono que verán tus clientes en el portal.",
+      label: to("brandLabel"),
+      desc: to("brandDesc"),
       href: "/dashboard/settings",
-      cta: "Configurar",
+      cta: to("brandCta"),
     },
     {
       done: rewardCount > 0,
-      label: "Creá tu primer premio",
-      desc: "Definí qué pueden canjear tus clientes con sus puntos.",
+      label: to("rewardLabel"),
+      desc: to("rewardDesc"),
       href: "/dashboard/rewards",
-      cta: "Crear premio",
+      cta: to("rewardCta"),
     },
     {
       done: customerCount > 0,
-      label: "Cargá tu primer cliente",
-      desc: "Registrá a un cliente para empezar a sumarle puntos.",
+      label: to("customerLabel"),
+      desc: to("customerDesc"),
       href: "/dashboard/customers/new",
-      cta: "Nuevo cliente",
+      cta: to("customerCta"),
     },
   ];
   const onboardingDone = onboardingSteps.every((s) => s.done);
 
   const stats = [
-    { label: "Clientes", value: formatNumber(customerCount), icon: "👥", href: "/dashboard/customers" },
-    { label: `${pointsName} emitidos`, value: formatNumber(pointsIssued), icon: "⭐" },
-    { label: `${pointsName} canjeados`, value: formatNumber(pointsRedeemed), icon: "🎁" },
-    { label: "Canjes pendientes", value: formatNumber(pendingRedemptions), icon: "🎟️", href: "/dashboard/redemptions" },
+    { label: t("statCustomers"), value: formatNumber(customerCount), icon: "👥", href: "/dashboard/customers" },
+    { label: t("statIssued", { points: pointsName }), value: formatNumber(pointsIssued), icon: "⭐" },
+    { label: t("statRedeemed", { points: pointsName }), value: formatNumber(pointsRedeemed), icon: "🎁" },
+    { label: t("statPending"), value: formatNumber(pendingRedemptions), icon: "🎟️", href: "/dashboard/redemptions" },
   ];
 
   return (
     <div className="space-y-8">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold">Resumen</h1>
-          <p className="text-sm text-gray-500">Hola {session.name.split(" ")[0]}, así va tu programa.</p>
+          <h1 className="text-2xl font-bold">{t("title")}</h1>
+          <p className="text-sm text-gray-500">{t("greeting", { name: session.name.split(" ")[0] })}</p>
         </div>
         <Link href="/dashboard/customers/new" className="btn-primary">
-          + Nuevo cliente
+          {t("newCustomer")}
         </Link>
       </div>
 
@@ -121,9 +124,9 @@ export default async function DashboardPage() {
 
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="card">
-          <h2 className="text-lg font-semibold">Mejores clientes</h2>
+          <h2 className="text-lg font-semibold">{t("topCustomers")}</h2>
           {topCustomers.length === 0 ? (
-            <p className="mt-3 text-sm text-gray-500">Todavía no cargaste clientes.</p>
+            <p className="mt-3 text-sm text-gray-500">{t("noCustomers")}</p>
           ) : (
             <ul className="mt-3 divide-y divide-gray-100">
               {topCustomers.map((c, i) => (
@@ -147,29 +150,29 @@ export default async function DashboardPage() {
         </div>
 
         <div className="card">
-          <h2 className="text-lg font-semibold">Últimos movimientos</h2>
+          <h2 className="text-lg font-semibold">{t("recentActivity")}</h2>
           {recentTx.length === 0 ? (
-            <p className="mt-3 text-sm text-gray-500">Sin movimientos aún.</p>
+            <p className="mt-3 text-sm text-gray-500">{t("noActivity")}</p>
           ) : (
             <ul className="mt-3 divide-y divide-gray-100">
-              {recentTx.map((t) => (
-                <li key={t.id} className="flex items-center justify-between py-2.5 text-sm">
+              {recentTx.map((tx) => (
+                <li key={tx.id} className="flex items-center justify-between py-2.5 text-sm">
                   <div>
                     <Link
-                      href={`/dashboard/customers/${t.customerId}`}
+                      href={`/dashboard/customers/${tx.customerId}`}
                       className="font-medium hover:text-brand-700"
                     >
-                      {t.customer.name}
+                      {tx.customer.name}
                     </Link>
-                    <p className="text-xs text-gray-400">{formatDate(t.createdAt)}</p>
+                    <p className="text-xs text-gray-400">{formatDate(tx.createdAt)}</p>
                   </div>
                   <span
                     className={`font-semibold ${
-                      t.points >= 0 ? "text-brand-700" : "text-red-600"
+                      tx.points >= 0 ? "text-brand-700" : "text-red-600"
                     }`}
                   >
-                    {t.points >= 0 ? "+" : ""}
-                    {formatNumber(t.points)}
+                    {tx.points >= 0 ? "+" : ""}
+                    {formatNumber(tx.points)}
                   </span>
                 </li>
               ))}

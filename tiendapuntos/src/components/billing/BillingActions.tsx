@@ -1,10 +1,13 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { startUpgradeAction, cancelSubscriptionAction } from "@/lib/actions/billing";
 
 export function UpgradeButton({ className }: { className: string }) {
+  const t = useTranslations("billing");
+  const tc = useTranslations("common");
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
@@ -28,7 +31,7 @@ export function UpgradeButton({ className }: { className: string }) {
           })
         }
       >
-        {pending ? "Procesando…" : "Mejorar a Pro"}
+        {pending ? tc("processing") : t("upgrade")}
       </button>
       {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
     </div>
@@ -36,6 +39,8 @@ export function UpgradeButton({ className }: { className: string }) {
 }
 
 export function DowngradeButton({ className }: { className: string }) {
+  const t = useTranslations("billing");
+  const tc = useTranslations("common");
   const [pending, start] = useTransition();
   const router = useRouter();
 
@@ -45,14 +50,14 @@ export function DowngradeButton({ className }: { className: string }) {
       className={className}
       disabled={pending}
       onClick={() => {
-        if (!window.confirm("¿Volver al plan Free? Se aplicarán los límites del plan.")) return;
+        if (!window.confirm(t("downgradeConfirm"))) return;
         start(async () => {
           await cancelSubscriptionAction();
           router.refresh();
         });
       }}
     >
-      {pending ? "Procesando…" : "Cambiar a Free"}
+      {pending ? tc("processing") : t("downgrade")}
     </button>
   );
 }

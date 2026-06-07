@@ -1,16 +1,13 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getTranslations } from "next-intl/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/auth";
 import { generateCode } from "@/lib/utils";
 
 export type ActionState = { error?: string; ok?: boolean; code?: string } | undefined;
-
-const redeemSchema = z.object({
-  rewardId: z.string().min(1, "Elegí un premio"),
-});
 
 // Canjea un premio para un cliente: descuenta puntos, descuenta stock,
 // crea la transacción REDEEM y el registro de canje con un código.
@@ -20,6 +17,11 @@ export async function redeemRewardAction(
   formData: FormData
 ): Promise<ActionState> {
   const session = await requireSession();
+  const t = await getTranslations("errors");
+
+  const redeemSchema = z.object({
+    rewardId: z.string().min(1, t("chooseReward")),
+  });
 
   const parsed = redeemSchema.safeParse({ rewardId: formData.get("rewardId") });
   if (!parsed.success) return { error: parsed.error.issues[0].message };
@@ -29,16 +31,16 @@ export async function redeemRewardAction(
       const customer = await tx.customer.findFirst({
         where: { id: customerId, businessId: session.businessId },
       });
-      if (!customer) throw new Error("Cliente no encontrado");
+      if (!customer) throw new Error(t("customerNotFound"));
 
       const reward = await tx.reward.findFirst({
         where: { id: parsed.data.rewardId, businessId: session.businessId },
       });
-      if (!reward) throw new Error("Premio no encontrado");
-      if (!reward.active) throw new Error("El premio no está disponible");
-      if (reward.stock !== null && reward.stock <= 0) throw new Error("Premio sin stock");
+      if (!reward) throw new Error(t("rewardNotFound"));
+      if (!reward.active) throw new Error(t("rewardUnavailable"));
+      if (reward.stock !== null && reward.stock <= 0) throw new Error(t("rewardNoStock"));
       if (customer.points < reward.pointsCost) {
-        throw new Error("El cliente no tiene puntos suficientes");
+        throw new Error(t("customerNoPoints"));
       }
 
       const code = generateCode();
@@ -87,7 +89,7 @@ export async function redeemRewardAction(
     revalidatePath("/dashboard");
     return { ok: true, code };
   } catch (e) {
-    return { error: e instanceof Error ? e.message : "No se pudo realizar el canje" };
+    return { error: e instanceof Error ? e.message : t("redeemFailed") };
   }
 }
 

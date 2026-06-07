@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { deleteCustomerAction } from "@/lib/actions/customers";
@@ -7,13 +8,17 @@ import { formatNumber, formatDate } from "@/lib/utils";
 import { PointsPanel } from "@/components/customer/PointsPanel";
 import { ConfirmButton } from "@/components/ConfirmButton";
 
-const txLabels: Record<string, { label: string; cls: string }> = {
-  EARN: { label: "Suma", cls: "bg-brand-100 text-brand-700" },
-  REDEEM: { label: "Canje", cls: "bg-amber-100 text-amber-700" },
-  ADJUST: { label: "Ajuste", cls: "bg-gray-100 text-gray-600" },
+const txCls: Record<string, string> = {
+  EARN: "bg-brand-100 text-brand-700",
+  REDEEM: "bg-amber-100 text-amber-700",
+  ADJUST: "bg-gray-100 text-gray-600",
 };
 
 export default async function CustomerDetailPage({ params }: { params: { id: string } }) {
+  const t = await getTranslations("customers");
+  const tc = await getTranslations("common");
+  const tt = await getTranslations("txType");
+  const tr = await getTranslations("redemptionStatus");
   const session = (await getSession())!;
 
   const [customer, business, rewards] = await Promise.all([
@@ -39,27 +44,27 @@ export default async function CustomerDetailPage({ params }: { params: { id: str
   return (
     <div className="space-y-6">
       <Link href="/dashboard/customers" className="text-sm text-gray-500 hover:underline">
-        ← Volver a clientes
+        {t("backToList")}
       </Link>
 
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold">{customer.name}</h1>
           <p className="text-sm text-gray-500">
-            {[customer.phone, customer.email].filter(Boolean).join(" · ") || "Sin datos de contacto"}
+            {[customer.phone, customer.email].filter(Boolean).join(" · ") || t("noContact")}
           </p>
           {customer.notes && <p className="mt-1 text-sm text-gray-400">{customer.notes}</p>}
         </div>
         <div className="flex gap-2">
           <Link href={`/dashboard/customers/${customer.id}/edit`} className="btn-secondary">
-            Editar
+            {tc("edit")}
           </Link>
           <ConfirmButton
             action={deleteAction}
-            confirm="¿Eliminar este cliente y todo su historial?"
-            pendingText="Eliminando…"
+            confirm={t("confirmDelete")}
+            pendingText={t("deleting")}
           >
-            Eliminar
+            {tc("delete")}
           </ConfirmButton>
         </div>
       </div>
@@ -67,7 +72,7 @@ export default async function CustomerDetailPage({ params }: { params: { id: str
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-1">
           <div className="card bg-brand-600 text-white">
-            <p className="text-sm text-brand-100">Saldo actual</p>
+            <p className="text-sm text-brand-100">{t("currentBalance")}</p>
             <p className="mt-1 text-4xl font-extrabold">{formatNumber(customer.points)}</p>
             <p className="text-sm text-brand-100">{pointsName}</p>
           </div>
@@ -84,14 +89,14 @@ export default async function CustomerDetailPage({ params }: { params: { id: str
         <div className="space-y-6 lg:col-span-2">
           {customer.redemptions.length > 0 && (
             <div className="card">
-              <h2 className="mb-3 text-lg font-semibold">Canjes</h2>
+              <h2 className="mb-3 text-lg font-semibold">{t("redemptionsTitle")}</h2>
               <ul className="divide-y divide-gray-100">
                 {customer.redemptions.map((r) => (
                   <li key={r.id} className="flex items-center justify-between py-2.5 text-sm">
                     <div>
                       <p className="font-medium">{r.rewardName}</p>
                       <p className="text-xs text-gray-400">
-                        {formatDate(r.createdAt)} · código {r.code}
+                        {formatDate(r.createdAt)} · {t("codeLabel", { code: r.code })}
                       </p>
                     </div>
                     <span
@@ -104,10 +109,10 @@ export default async function CustomerDetailPage({ params }: { params: { id: str
                       }`}
                     >
                       {r.status === "FULFILLED"
-                        ? "Entregado"
+                        ? tr("FULFILLED")
                         : r.status === "CANCELLED"
-                        ? "Cancelado"
-                        : "Pendiente"}
+                        ? tr("CANCELLED")
+                        : tr("PENDING")}
                     </span>
                   </li>
                 ))}
@@ -116,32 +121,32 @@ export default async function CustomerDetailPage({ params }: { params: { id: str
           )}
 
           <div className="card">
-            <h2 className="mb-3 text-lg font-semibold">Historial de {pointsName}</h2>
+            <h2 className="mb-3 text-lg font-semibold">{t("historyTitle", { points: pointsName })}</h2>
             {customer.transactions.length === 0 ? (
-              <p className="text-sm text-gray-500">Sin movimientos todavía.</p>
+              <p className="text-sm text-gray-500">{t("noMovements")}</p>
             ) : (
               <ul className="divide-y divide-gray-100">
-                {customer.transactions.map((t) => {
-                  const meta = txLabels[t.type];
+                {customer.transactions.map((tx) => {
+                  const label = tt(tx.type);
                   return (
-                    <li key={t.id} className="flex items-center justify-between py-2.5">
+                    <li key={tx.id} className="flex items-center justify-between py-2.5">
                       <div className="flex items-center gap-3">
-                        <span className={`badge ${meta.cls}`}>{meta.label}</span>
+                        <span className={`badge ${txCls[tx.type] ?? ""}`}>{label}</span>
                         <div className="text-sm">
-                          <p className="text-gray-700">{t.note || meta.label}</p>
+                          <p className="text-gray-700">{tx.note || label}</p>
                           <p className="text-xs text-gray-400">
-                            {formatDate(t.createdAt)}
-                            {t.user ? ` · ${t.user.name}` : ""}
+                            {formatDate(tx.createdAt)}
+                            {tx.user ? ` · ${tx.user.name}` : ""}
                           </p>
                         </div>
                       </div>
                       <span
                         className={`font-semibold ${
-                          t.points >= 0 ? "text-brand-700" : "text-red-600"
+                          tx.points >= 0 ? "text-brand-700" : "text-red-600"
                         }`}
                       >
-                        {t.points >= 0 ? "+" : ""}
-                        {formatNumber(t.points)}
+                        {tx.points >= 0 ? "+" : ""}
+                        {formatNumber(tx.points)}
                       </span>
                     </li>
                   );

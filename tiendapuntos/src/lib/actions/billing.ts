@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/auth";
 import { stripeEnabled, getStripe } from "@/lib/stripe";
@@ -13,7 +14,8 @@ export type UpgradeResult = { error?: string; url?: string; simulated?: boolean 
 // sin Stripe, cambia el plan en modo simulado.
 export async function startUpgradeAction(): Promise<UpgradeResult> {
   const session = await requireSession();
-  if (session.role === "STAFF") return { error: "No tenés permisos para esto" };
+  const t = await getTranslations("errors");
+  if (session.role === "STAFF") return { error: t("noPermission") };
 
   if (!stripeEnabled()) {
     await changePlanAction("PRO");
@@ -21,7 +23,7 @@ export async function startUpgradeAction(): Promise<UpgradeResult> {
   }
 
   const business = await prisma.business.findUnique({ where: { id: session.businessId } });
-  if (!business) return { error: "Negocio no encontrado" };
+  if (!business) return { error: t("businessNotFound") };
 
   const stripe = getStripe();
 
@@ -55,10 +57,11 @@ export async function startUpgradeAction(): Promise<UpgradeResult> {
 // Cancela la suscripción (o baja a Free en modo simulado).
 export async function cancelSubscriptionAction(): Promise<UpgradeResult> {
   const session = await requireSession();
-  if (session.role === "STAFF") return { error: "No tenés permisos para esto" };
+  const t = await getTranslations("errors");
+  if (session.role === "STAFF") return { error: t("noPermission") };
 
   const business = await prisma.business.findUnique({ where: { id: session.businessId } });
-  if (!business) return { error: "Negocio no encontrado" };
+  if (!business) return { error: t("businessNotFound") };
 
   if (stripeEnabled() && business.stripeSubscriptionId) {
     const stripe = getStripe();

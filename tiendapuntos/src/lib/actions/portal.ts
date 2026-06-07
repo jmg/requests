@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
 
 export type PortalResult =
@@ -17,11 +18,13 @@ export async function lookupCustomerAction(
   _prev: PortalResult,
   formData: FormData
 ): Promise<PortalResult> {
+  const t = await getTranslations("errors");
+
   const phone = String(formData.get("phone") || "").trim();
-  if (!phone) return { ok: false, error: "Ingresá tu teléfono" };
+  if (!phone) return { ok: false, error: t("enterPhone") };
 
   const business = await prisma.business.findUnique({ where: { slug } });
-  if (!business) return { ok: false, error: "Negocio no encontrado" };
+  if (!business) return { ok: false, error: t("businessNotFound") };
 
   const customer = await prisma.customer.findUnique({
     where: { businessId_phone: { businessId: business.id, phone } },
@@ -33,7 +36,7 @@ export async function lookupCustomerAction(
   if (!customer) {
     return {
       ok: false,
-      error: "No encontramos una cuenta con ese teléfono. Pedí en el local que te registren.",
+      error: t("portalCustomerNotFound"),
     };
   }
 

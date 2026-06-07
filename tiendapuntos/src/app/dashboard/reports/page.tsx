@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { planConfig } from "@/lib/plans";
@@ -7,6 +8,7 @@ import { formatNumber } from "@/lib/utils";
 const MONTHS = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
 
 export default async function ReportsPage() {
+  const t = await getTranslations("reports");
   const session = (await getSession())!;
   const business = await prisma.business.findUnique({ where: { id: session.businessId } });
   if (!business) return null;
@@ -59,20 +61,20 @@ export default async function ReportsPage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-bold">Reportes</h1>
+        <h1 className="text-2xl font-bold">{t("title")}</h1>
         <div className="flex gap-2">
           {isPro ? (
             <>
               <a href="/api/export/customers" className="btn-secondary">
-                ⬇ Clientes (CSV)
+                {t("exportCustomers")}
               </a>
               <a href="/api/export/transactions" className="btn-secondary">
-                ⬇ Movimientos (CSV)
+                {t("exportTransactions")}
               </a>
             </>
           ) : (
             <Link href="/dashboard/billing" className="btn-secondary">
-              ⬇ Exportar CSV (Pro)
+              {t("exportPro")}
             </Link>
           )}
         </div>
@@ -80,29 +82,29 @@ export default async function ReportsPage() {
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="card">
-          <p className="text-sm text-gray-500">{pointsName} emitidos (6 meses)</p>
+          <p className="text-sm text-gray-500">{t("issued6m", { points: pointsName })}</p>
           <p className="mt-1 text-3xl font-bold text-brand-700">{formatNumber(totalEarned)}</p>
         </div>
         <div className="card">
-          <p className="text-sm text-gray-500">{pointsName} canjeados (6 meses)</p>
+          <p className="text-sm text-gray-500">{t("redeemed6m", { points: pointsName })}</p>
           <p className="mt-1 text-3xl font-bold text-amber-600">{formatNumber(totalRedeemed)}</p>
         </div>
       </div>
 
       <div className="card">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Actividad mensual</h2>
+          <h2 className="text-lg font-semibold">{t("monthlyActivity")}</h2>
           <div className="flex gap-4 text-xs">
             <span className="flex items-center gap-1.5">
-              <span className="h-3 w-3 rounded-sm bg-brand-500" /> Emitidos
+              <span className="h-3 w-3 rounded-sm bg-brand-500" /> {t("legendIssued")}
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="h-3 w-3 rounded-sm bg-amber-400" /> Canjeados
+              <span className="h-3 w-3 rounded-sm bg-amber-400" /> {t("legendRedeemed")}
             </span>
           </div>
         </div>
 
-        <svg viewBox={`0 0 ${W} ${H}`} className="w-full" role="img" aria-label="Actividad mensual">
+        <svg viewBox={`0 0 ${W} ${H}`} className="w-full" role="img" aria-label={t("monthlyActivity")}>
           <line
             x1={pad.left}
             y1={pad.top + chartH}
@@ -150,13 +152,13 @@ export default async function ReportsPage() {
       {!isPro && (
         <div className="card flex items-center justify-between bg-brand-50">
           <div>
-            <p className="font-semibold text-brand-800">Exportá tus datos con el plan Pro</p>
+            <p className="font-semibold text-brand-800">{t("upsellTitle")}</p>
             <p className="text-sm text-brand-700">
-              Descargá clientes y movimientos en CSV para tu contabilidad o campañas.
+              {t("upsellText")}
             </p>
           </div>
           <Link href="/dashboard/billing" className="btn-primary">
-            Ver planes
+            {t("seePlans")}
           </Link>
         </div>
       )}

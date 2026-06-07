@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { portalUrl } from "@/lib/app-url";
@@ -7,6 +8,7 @@ import { TeamManager } from "@/components/settings/TeamManager";
 import { CopyField } from "@/components/CopyField";
 
 export default async function SettingsPage() {
+  const t = await getTranslations("settings");
   const session = (await getSession())!;
   const isStaff = session.role === "STAFF";
 
@@ -31,24 +33,24 @@ export default async function SettingsPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Configuración</h1>
+      <h1 className="text-2xl font-bold">{t("title")}</h1>
 
       <div className="card">
-        <h2 className="text-lg font-semibold">Portal público</h2>
+        <h2 className="text-lg font-semibold">{t("portalTitle")}</h2>
         <p className="mt-1 text-sm text-gray-500">
-          Compartí este link o el QR con tus clientes para que consulten sus {business.pointsName}:
+          {t("portalShare", { points: business.pointsName })}
         </p>
         <div className="mt-3 flex flex-col gap-4 sm:flex-row sm:items-center">
           <div className="flex-1">
             <CopyField value={url} />
             <a href={`/p/${business.slug}`} target="_blank" rel="noreferrer" className="btn-secondary mt-2">
-              Abrir portal ↗
+              {t("openPortal")}
             </a>
           </div>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={qr}
-            alt="QR del portal"
+            alt={t("qrAlt")}
             width={120}
             height={120}
             className="rounded-lg border border-gray-200"
@@ -58,19 +60,19 @@ export default async function SettingsPage() {
 
       {isStaff ? (
         <div className="card text-sm text-gray-500">
-          Tu rol de cajero no tiene acceso a la configuración del negocio.
+          {t("staffNote")}
         </div>
       ) : (
         <>
           <div className="card">
-            <h2 className="mb-4 text-lg font-semibold">Datos del programa</h2>
+            <h2 className="mb-4 text-lg font-semibold">{t("programData")}</h2>
             <BusinessSettingsForm business={business} />
           </div>
 
           <div className="card">
-            <h2 className="mb-1 text-lg font-semibold">Equipo</h2>
+            <h2 className="mb-1 text-lg font-semibold">{t("teamTitle")}</h2>
             <p className="mb-4 text-sm text-gray-500">
-              Invitá usuarios por email para que tu equipo cargue y canjee puntos.
+              {t("teamSubtitle")}
             </p>
             <TeamManager
               members={members}

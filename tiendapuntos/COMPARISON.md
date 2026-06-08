@@ -39,7 +39,7 @@
 | Branding personalizable | ✅ | ✅ | ✅ (limitado) | ✅ |
 | Reportes + exportación CSV | ✅ | ✅ | ✅ | ✅ |
 | Planes con límites (free/pro) | ✅ | ✅ | ✅ | ✅ |
-| Pagos / suscripción (Stripe) | ✅ | ✅ | ✅ | ✅ (medios locales) |
+| Pagos / suscripción (Stripe + Mercado Pago) | ✅ | ✅ | ✅ | ✅ (medios locales) |
 | Subdominio propio por negocio | ✅ | ➖ | ➖ | ➖ |
 | QR del programa | ✅ | ➖ | ✅ | ✅ |
 | Internacionalización ES/EN | ✅ | ✅ (multi‑idioma) | ✅ (multi‑idioma) | ➖ (ES) |
@@ -47,9 +47,9 @@
 | Programa de referidos | ✅ | ✅ | ➖ | parcial |
 | Niveles VIP / tiers (con multiplicador) | ✅ | ✅ | ➖ | parcial |
 | Bono de cumpleaños | ✅ | ✅ | ➖ | ✅ |
-| App móvil nativa | ➖ (web responsive) | ➖ (web) | ✅ | ✅ |
+| App instalable (PWA) | ✅ | ➖ | ✅ (app nativa) | ✅ (app nativa) |
 | Punto de venta (POS) integrado | ➖ | ➖ | ✅ | ➖ |
-| Campañas / notificaciones push o email | ➖ (roadmap) | ✅ | ✅ | ✅ |
+| Campañas por segmento (email) | ✅ | ✅ | ✅ | ✅ |
 
 Leyenda: ✅ disponible · ➖ no disponible / limitado.
 
@@ -82,13 +82,12 @@ Leyenda: ✅ disponible · ➖ no disponible / limitado.
 ### ⚠️ Dónde todavía pierde
 - **Sin POS integrado** como Loyverse (que cubre venta + fidelización en un solo flujo).
 - **Sin integración nativa con tiendas online** como Smile.io (Shopify, etc.).
-- **Faltan campañas automáticas** (email/push/WhatsApp por segmento) que Smile y Loyverse traen.
-- **Sin app móvil nativa** para clientes (hoy es web responsive).
-- **Medios de pago**: Stripe está listo, pero para Argentina conviene **Mercado Pago**.
+- **Campañas**: hoy son por **email/segmento** (manuales); falta **automatización** y **push/WhatsApp**.
+- **App**: es una **PWA instalable**, no una app nativa de tienda (iOS/Android store).
 
-> ✅ Ya implementados (antes en el roadmap): **programa de referidos**, **niveles VIP con
-> multiplicador de puntos** y **bono de cumpleaños**, que acercan a TiendaPuntos a la propuesta de
-> Smile.io en retención y captación.
+> ✅ Ya implementados (antes en el roadmap): **referidos**, **niveles VIP con multiplicador**,
+> **bono de cumpleaños**, **campañas por segmento**, **PWA instalable** y **pagos con Stripe +
+> Mercado Pago**. La brecha grande que queda es **POS** e **integración con e‑commerce**.
 
 ---
 
@@ -99,10 +98,11 @@ Ordenado por impacto/esfuerzo para competir mejor:
 1. ~~**Referidos**~~ ✅ implementado (código por cliente + bonos configurables).
 2. ~~**Niveles / tiers VIP**~~ ✅ implementado (Bronce/Plata/Oro con multiplicador de puntos).
 3. ~~**Bono de cumpleaños**~~ ✅ implementado.
-4. **Campañas**: email/WhatsApp a clientes por segmento (inactivos, cumpleaños, etc.).
-5. **Mercado Pago** como medio de pago y de acreditación de puntos (clave para AR).
-6. **PWA / app móvil** para el cliente final (notificaciones push, billetera de puntos).
-7. **Integración Shopify/Tiendanube** para no quedar afuera del e‑commerce LATAM.
+4. ~~**Campañas por segmento**~~ ✅ implementado (email a inactivos, cumpleaños, con email, etc.).
+5. ~~**Mercado Pago**~~ ✅ implementado (Checkout Pro + webhook), junto a Stripe.
+6. ~~**PWA**~~ ✅ implementada (instalable + offline básico).
+7. **Pendiente**: campañas **automáticas** y push/WhatsApp.
+8. **Pendiente**: **POS** propio e **integración Shopify/Tiendanube** para el e‑commerce LATAM.
 
 ---
 

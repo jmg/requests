@@ -3,7 +3,11 @@
 import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import { startUpgradeAction, cancelSubscriptionAction } from "@/lib/actions/billing";
+import {
+  startUpgradeAction,
+  startMercadoPagoUpgradeAction,
+  cancelSubscriptionAction,
+} from "@/lib/actions/billing";
 
 export function UpgradeButton({ className }: { className: string }) {
   const t = useTranslations("billing");
@@ -32,6 +36,39 @@ export function UpgradeButton({ className }: { className: string }) {
         }
       >
         {pending ? tc("processing") : t("upgrade")}
+      </button>
+      {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
+    </div>
+  );
+}
+
+export function MercadoPagoButton({ className }: { className: string }) {
+  const t = useTranslations("billing");
+  const tc = useTranslations("common");
+  const [pending, start] = useTransition();
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+
+  return (
+    <div>
+      <button
+        type="button"
+        className={className}
+        disabled={pending}
+        onClick={() =>
+          start(async () => {
+            setError(null);
+            const res = await startMercadoPagoUpgradeAction();
+            if (res.error) return setError(res.error);
+            if (res.url) {
+              window.location.href = res.url;
+              return;
+            }
+            router.refresh(); // modo simulado
+          })
+        }
+      >
+        {pending ? tc("processing") : t("payWithMP")}
       </button>
       {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
     </div>

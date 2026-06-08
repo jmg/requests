@@ -66,6 +66,20 @@ model Business {
   redemptions  Redemption[]
   invitations  Invitation[]
   tiers        Tier[]
+  campaigns    Campaign[]
+}
+
+// Campaña enviada a un segmento de clientes (delivery stub por email).
+model Campaign {
+  id             String   @id @default(cuid())
+  businessId     String
+  business       Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  segment        String   // ALL | INACTIVE_30 | INACTIVE_60 | INACTIVE_90 | HAS_EMAIL | BIRTHDAYS
+  message        String
+  recipientCount Int      @default(0)
+  createdAt      DateTime @default(now())
+
+  @@index([businessId])
 }
 
 // Niveles VIP por negocio. Un cliente alcanza el nivel cuyo umbral

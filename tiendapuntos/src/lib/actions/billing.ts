@@ -5,10 +5,33 @@ import { getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/auth";
 import { stripeEnabled, getStripe } from "@/lib/stripe";
+import { mpEnabled, createMpPreference } from "@/lib/mercadopago";
 import { changePlanAction } from "@/lib/actions/settings";
 import { appUrl } from "@/lib/app-url";
 
 export type UpgradeResult = { error?: string; url?: string; simulated?: boolean };
+
+// Inicia el upgrade a Pro con Mercado Pago (Checkout Pro). Sin token, simula.
+export async function startMercadoPagoUpgradeAction(): Promise<UpgradeResult> {
+  const session = await requireSession();
+  const t = await getTranslations("errors");
+  if (session.role === "STAFF") return { error: t("noPermission") };
+
+  if (!mpEnabled()) {
+    await changePlanAction("PRO");
+    return { simulated: true };
+  }
+
+  const business = await prisma.business.findUnique({ where: { id: session.businessId } });
+  if (!business) return { error: t("businessNotFound") };
+
+  const url = await createMpPreference({
+    businessId: business.id,
+    title: "TiendaPuntos Pro",
+    successUrl: `${appUrl()}/dashboard/billing?success=1`,
+  });
+  return { url };
+}
 
 // Inicia el upgrade a Pro. Con Stripe configurado devuelve la URL del Checkout;
 // sin Stripe, cambia el plan en modo simulado.

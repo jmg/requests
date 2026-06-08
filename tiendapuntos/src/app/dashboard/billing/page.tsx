@@ -3,8 +3,13 @@ import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { PLANS, planConfig } from "@/lib/plans";
 import { stripeEnabled } from "@/lib/stripe";
+import { mpEnabled } from "@/lib/mercadopago";
 import { formatNumber, formatDate } from "@/lib/utils";
-import { UpgradeButton, DowngradeButton } from "@/components/billing/BillingActions";
+import {
+  UpgradeButton,
+  MercadoPagoButton,
+  DowngradeButton,
+} from "@/components/billing/BillingActions";
 
 function UsageBar({ label, used, limit }: { label: string; used: number; limit: number | null }) {
   const pct = limit === null ? 0 : Math.min(100, Math.round((used / limit) * 100));
@@ -42,6 +47,7 @@ export default async function BillingPage({
   const isStaff = session.role === "STAFF";
   const current = planConfig(business.plan);
   const stripeOn = stripeEnabled();
+  const mpOn = mpEnabled();
 
   // Datos de presentación de cada plan, traducidos (la lógica/los límites
   // siguen viniendo de PLANS en lib/plans.ts).
@@ -125,7 +131,10 @@ export default async function BillingPage({
                       {t("currentButton")}
                     </button>
                   ) : p.id === "PRO" ? (
-                    <UpgradeButton className="btn-primary w-full" />
+                    <div className="space-y-2">
+                      <UpgradeButton className="btn-primary w-full" />
+                      {mpOn && <MercadoPagoButton className="btn-secondary w-full" />}
+                    </div>
                   ) : (
                     <DowngradeButton className="btn-secondary w-full" />
                   )}

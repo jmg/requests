@@ -42,12 +42,21 @@ Construida con **Next.js 14 (App Router)**, **Prisma** y **PostgreSQL**.
 - **Bono de cumpleaños**: guardás la fecha de cumpleaños del cliente; el panel muestra los **cumpleaños
   del mes** y, con un bono configurado, se aplica con un clic desde la ficha.
 
+### Marketing y app
+- **Campañas por segmento** (`/dashboard/campaigns`): enviá un mensaje a un segmento de clientes
+  (todos, con email, cumpleaños del mes, inactivos +30/60/90 días). El envío de email está stubbeado
+  (se loguea) y queda registrado el historial con cantidad de destinatarios.
+- **PWA instalable**: la app tiene `manifest`, íconos y un **service worker** (`public/sw.js`) que la
+  hacen instalable en el celular y con soporte offline básico para páginas ya visitadas. Ideal para que
+  el cliente final agregue el portal a su pantalla de inicio.
+
 ### Integraciones y operación
 - **Invitaciones de equipo por email** (`/invite/[token]`): el dueño/admin invita por email; el invitado
   crea su cuenta desde un link con token (vence a 7 días). El envío de mail está stubbeado (se loguea
   el contenido) y listo para conectar Resend/SMTP en `src/lib/email.ts`. El link también queda copiable.
-- **Pagos con Stripe**: upgrade a Pro vía **Stripe Checkout** y sincronización por **webhook**
-  (`/api/webhooks/stripe`). Si no configurás Stripe, el cambio de plan funciona en modo simulado.
+- **Pagos con Stripe y Mercado Pago**: upgrade a Pro vía **Stripe Checkout** o **Mercado Pago Checkout
+  Pro**, con sincronización por **webhook** (`/api/webhooks/stripe`, `/api/webhooks/mercadopago`). Si no
+  configurás ninguno, el cambio de plan funciona en modo simulado.
 - **Subdominio por negocio**: con un dominio raíz configurado, cada negocio sirve su portal en
   `slug.tudominio.com` (resuelto en `middleware.ts`). En local cae al path `/p/[slug]`.
 - **QR del portal**: en Configuración se genera el QR del portal para imprimir/compartir.
@@ -125,6 +134,12 @@ Abrí http://localhost:3000
    y poné el secreto resultante en `STRIPE_WEBHOOK_SECRET`.
 
 Sin estas variables, el upgrade a Pro funciona en **modo simulado** (cambia el plan sin cobrar).
+
+### Mercado Pago (pagos)
+1. Cargá tu **access token** en `MP_ACCESS_TOKEN` y, opcionalmente, el precio en `MP_PRO_PRICE`.
+2. El botón "Pagar con Mercado Pago" crea una preferencia de **Checkout Pro**.
+3. Configurá el webhook a `/api/webhooks/mercadopago`; al aprobarse el pago se activa el plan Pro
+   del negocio (identificado por `external_reference`).
 
 ### Subdominios por negocio
 Configurá `NEXT_PUBLIC_ROOT_DOMAIN` (ej: `miapp.com`). El portal de cada negocio queda en

@@ -74,6 +74,8 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  // Corre en todas las rutas salvo assets estáticos y endpoints de API/webhooks.
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|api/).*)"],
+  // Corre en todas las rutas salvo assets estáticos, PWA y endpoints de API/webhooks.
+  matcher: [
+    "/((?!_next/static|_next/image|favicon.ico|api/|sw.js|manifest.webmanifest|icon.svg|icon-maskable.svg).*)",
+  ],
 };

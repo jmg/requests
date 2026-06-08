@@ -25,10 +25,36 @@
     "redemptions": "Redemptions",
     "transactions": "Activity",
     "reports": "Reports",
+    "campaigns": "Campaigns",
     "plan": "Plan",
     "settings": "Settings",
     "portal": "Public portal",
     "logout": "Sign out"
+  },
+  "campaigns": {
+    "title": "Campaigns",
+    "subtitle": "Send a message to a segment of your customers.",
+    "segment": "Segment",
+    "message": "Message",
+    "messagePlaceholder": "e.g. Double points on all purchases this week! 🎉",
+    "send": "Send campaign",
+    "sending": "Sending…",
+    "sentOk": "Campaign sent to {count} customers!",
+    "history": "Sent campaigns",
+    "empty": "No campaigns sent yet.",
+    "note": "Email delivery is simulated (logged to the server console). Connect a provider in src/lib/email.ts to send for real.",
+    "staffNote": "Your cashier role can't send campaigns.",
+    "colSegment": "Segment",
+    "colRecipients": "Recipients",
+    "colDate": "Date",
+    "colMessage": "Message",
+    "recipients": "{count} customers",
+    "segALL": "All customers",
+    "segHAS_EMAIL": "With email",
+    "segBIRTHDAYS": "Birthdays this month",
+    "segINACTIVE_30": "Inactive 30+ days",
+    "segINACTIVE_60": "Inactive 60+ days",
+    "segINACTIVE_90": "Inactive 90+ days"
   },
   "landing": {
     "signIn": "Sign in",
@@ -313,6 +339,7 @@
     "yourPlan": "Your plan",
     "currentButton": "Current plan",
     "upgrade": "Upgrade to Pro",
+    "payWithMP": "Pay with Mercado Pago",
     "downgrade": "Switch to Free",
     "downgradeConfirm": "Switch back to the Free plan? Plan limits will apply.",
     "perMonth": "per month",
@@ -428,6 +455,8 @@
     "portalCustomerNotFound": "We couldn't find an account with that phone. Ask the store to register you.",
     "inviteInvalid": "The invitation is invalid or expired",
     "multiplierMin": "The multiplier must be at least 1",
-    "noBirthdayBonus": "No birthday bonus is configured"
+    "noBirthdayBonus": "No birthday bonus is configured",
+    "messageShort": "The message is too short",
+    "noRecipients": "The segment has no customers"
   }
 }

@@ -25,10 +25,36 @@
     "redemptions": "Canjes",
     "transactions": "Movimientos",
     "reports": "Reportes",
+    "campaigns": "Campañas",
     "plan": "Plan",
     "settings": "Configuración",
     "portal": "Portal público",
     "logout": "Cerrar sesión"
+  },
+  "campaigns": {
+    "title": "Campañas",
+    "subtitle": "Enviá un mensaje a un segmento de tus clientes.",
+    "segment": "Segmento",
+    "message": "Mensaje",
+    "messagePlaceholder": "Ej: ¡Esta semana puntos dobles en todas tus compras! 🎉",
+    "send": "Enviar campaña",
+    "sending": "Enviando…",
+    "sentOk": "¡Campaña enviada a {count} clientes!",
+    "history": "Campañas enviadas",
+    "empty": "Todavía no enviaste campañas.",
+    "note": "El envío de email está simulado (se loguea en la consola del server). Conectá un proveedor en src/lib/email.ts para enviarlas de verdad.",
+    "staffNote": "Tu rol de cajero no puede enviar campañas.",
+    "colSegment": "Segmento",
+    "colRecipients": "Destinatarios",
+    "colDate": "Fecha",
+    "colMessage": "Mensaje",
+    "recipients": "{count} clientes",
+    "segALL": "Todos los clientes",
+    "segHAS_EMAIL": "Con email",
+    "segBIRTHDAYS": "Cumpleaños del mes",
+    "segINACTIVE_30": "Inactivos +30 días",
+    "segINACTIVE_60": "Inactivos +60 días",
+    "segINACTIVE_90": "Inactivos +90 días"
   },
   "landing": {
     "signIn": "Ingresar",
@@ -313,6 +339,7 @@
     "yourPlan": "Tu plan",
     "currentButton": "Plan actual",
     "upgrade": "Mejorar a Pro",
+    "payWithMP": "Pagar con Mercado Pago",
     "downgrade": "Cambiar a Free",
     "downgradeConfirm": "¿Volver al plan Free? Se aplicarán los límites del plan.",
     "perMonth": "por mes",
@@ -428,6 +455,8 @@
     "portalCustomerNotFound": "No encontramos una cuenta con ese teléfono. Pedí en el local que te registren.",
     "inviteInvalid": "La invitación no es válida o expiró",
     "multiplierMin": "El multiplicador debe ser al menos 1",
-    "noBirthdayBonus": "No hay un bono de cumpleaños configurado"
+    "noBirthdayBonus": "No hay un bono de cumpleaños configurado",
+    "messageShort": "El mensaje es muy corto",
+    "noRecipients": "El segmento no tiene clientes"
   }
 }

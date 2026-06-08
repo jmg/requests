@@ -1,4 +1,8 @@
 {
+  "meta": {
+    "title": "TiendaPuntos — Fidelización de clientes",
+    "description": "Plataforma de fidelización por puntos para tu negocio. Sumá puntos a tus clientes y canjealos por premios."
+  },
   "common": {
     "save": "Guardar",
     "saveChanges": "Guardar cambios",
@@ -181,6 +185,14 @@
     "EARN": "Suma",
     "REDEEM": "Canje",
     "ADJUST": "Ajuste"
+  },
+  "txNote": {
+    "birthdayBonus": "Bono de cumpleaños 🎂",
+    "referredFrom": "Bono por referido de {value}",
+    "referredTo": "Bono por referir a {value}",
+    "redeem": "Canje: {value}",
+    "cancelRefund": "Reintegro por canje cancelado ({value})",
+    "demoInitial": "Carga inicial de demo"
   },
   "roles": {
     "OWNER": "Dueño",

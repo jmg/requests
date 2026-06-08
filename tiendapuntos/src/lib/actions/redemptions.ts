@@ -6,6 +6,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/auth";
 import { generateCode } from "@/lib/utils";
+import { encodeNote } from "@/lib/tx-note";
 
 export type ActionState = { error?: string; ok?: boolean; code?: string } | undefined;
 
@@ -51,7 +52,7 @@ export async function redeemRewardAction(
           customerId,
           type: "REDEEM",
           points: -reward.pointsCost,
-          note: `Canje: ${reward.name}`,
+          note: encodeNote("redeem", reward.name),
           userId: session.userId,
         },
       });
@@ -123,7 +124,7 @@ export async function cancelRedemptionAction(redemptionId: string): Promise<void
         customerId: redemption.customerId,
         type: "ADJUST",
         points: redemption.pointsCost,
-        note: `Reintegro por canje cancelado (${redemption.code})`,
+        note: encodeNote("cancelRefund", redemption.code),
         userId: session.userId,
       },
     });

@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { getTranslations } from "next-intl/server";
+import { getTranslations, getLocale } from "next-intl/server";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { formatNumber, formatDate, formatCurrency } from "@/lib/utils";
+import { renderNote } from "@/lib/tx-note";
 
 const PAGE_SIZE = 50;
 
@@ -13,6 +14,8 @@ export default async function TransactionsPage({
 }) {
   const tt = await getTranslations("transactions");
   const tType = await getTranslations("txType");
+  const tn = await getTranslations("txNote");
+  const locale = await getLocale();
   const txMeta: Record<string, { label: string; cls: string }> = {
     EARN: { label: tType("EARN"), cls: "bg-brand-100 text-brand-700" },
     REDEEM: { label: tType("REDEEM"), cls: "bg-amber-100 text-amber-700" },
@@ -41,7 +44,7 @@ export default async function TransactionsPage({
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold">{tt("title")}</h1>
-        <p className="text-sm text-gray-500">{tt("count", { count: formatNumber(total) })}</p>
+        <p className="text-sm text-gray-500">{tt("count", { count: formatNumber(total, locale) })}</p>
       </div>
 
       <div className="card overflow-hidden p-0">
@@ -65,7 +68,7 @@ export default async function TransactionsPage({
                 return (
                   <tr key={t.id} className="hover:bg-gray-50">
                     <td className="whitespace-nowrap px-4 py-3 text-gray-400">
-                      {formatDate(t.createdAt)}
+                      {formatDate(t.createdAt, locale)}
                     </td>
                     <td className="px-4 py-3">
                       <Link
@@ -79,9 +82,9 @@ export default async function TransactionsPage({
                       <span className={`badge ${meta.cls}`}>{meta.label}</span>
                     </td>
                     <td className="px-4 py-3 text-gray-500">
-                      {t.note || "—"}
+                      {renderNote(t.note, tn) || "—"}
                       {t.amount ? (
-                        <span className="text-gray-400"> · {formatCurrency(t.amount, currency)}</span>
+                        <span className="text-gray-400"> · {formatCurrency(t.amount, currency, locale)}</span>
                       ) : null}
                     </td>
                     <td className="px-4 py-3 text-gray-400">{t.user?.name ?? "—"}</td>
@@ -91,7 +94,7 @@ export default async function TransactionsPage({
                       }`}
                     >
                       {t.points >= 0 ? "+" : ""}
-                      {formatNumber(t.points)}
+                      {formatNumber(t.points, locale)}
                     </td>
                   </tr>
                 );

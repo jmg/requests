@@ -4,8 +4,7 @@ import { revalidatePath } from "next/cache";
 import { getTranslations } from "next-intl/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { requireSession, hashPassword } from "@/lib/auth";
-import { planConfig } from "@/lib/plans";
+import { requireSession } from "@/lib/auth";
 
 export type ActionState = { error?: string; ok?: boolean } | undefined;
 
@@ -79,57 +78,23 @@ export async function changePlanAction(plan: "FREE" | "PRO"): Promise<ActionStat
   return { ok: true };
 }
 
-// Invitar / crear un usuario adicional para el negocio (equipo).
-export async function createTeamMemberAction(
-  _prev: ActionState,
-  formData: FormData
+// Cambiar el rol de un miembro del equipo (admin <-> cajero).
+export async function changeTeamMemberRoleAction(
+  userId: string,
+  role: "ADMIN" | "STAFF"
 ): Promise<ActionState> {
   const session = await requireSession();
   const t = await getTranslations("errors");
   if (session.role === "STAFF") return { error: t("noPermission") };
+  if (userId === session.userId) return { error: t("noPermission") };
 
-  const teamSchema = z.object({
-    name: z.string().min(2, t("enterYourName")),
-    email: z.string().email(t("invalidEmail")),
-    password: z.string().min(6, t("passwordMin")),
-    role: z.enum(["ADMIN", "STAFF"]),
+  const target = await prisma.user.findFirst({
+    where: { id: userId, businessId: session.businessId },
   });
+  if (!target) return { error: t("userNotFound") };
+  if (target.role === "OWNER") return { error: t("cannotDeleteOwner") };
 
-  const parsed = teamSchema.safeParse({
-    name: formData.get("name"),
-    email: formData.get("email"),
-    password: formData.get("password"),
-    role: formData.get("role"),
-  });
-
-  if (!parsed.success) return { error: parsed.error.issues[0].message };
-
-  const email = parsed.data.email.toLowerCase().trim();
-  const existing = await prisma.user.findUnique({ where: { email } });
-  if (existing) return { error: t("userExists") };
-
-  // Límite de equipo del plan
-  const business = await prisma.business.findUnique({ where: { id: session.businessId } });
-  const teamLimit = business ? planConfig(business.plan).teamLimit : null;
-  if (teamLimit !== null) {
-    const count = await prisma.user.count({ where: { businessId: session.businessId } });
-    if (count >= teamLimit) {
-      return {
-        error: t("teamLimit", { limit: teamLimit, plan: business!.plan }),
-      };
-    }
-  }
-
-  await prisma.user.create({
-    data: {
-      businessId: session.businessId,
-      name: parsed.data.name.trim(),
-      email,
-      password: await hashPassword(parsed.data.password),
-      role: parsed.data.role,
-    },
-  });
-
+  await prisma.user.update({ where: { id: userId }, data: { role } });
   revalidatePath("/dashboard/settings");
   return { ok: true };
 }

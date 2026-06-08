@@ -8,6 +8,7 @@ import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/auth";
 import { planConfig } from "@/lib/plans";
 import { generateReferralCode } from "@/lib/utils";
+import { encodeNote } from "@/lib/tx-note";
 
 export type ActionState = { error?: string; ok?: boolean } | undefined;
 
@@ -107,7 +108,7 @@ export async function createCustomerAction(
           customerId: created.id,
           type: "EARN",
           points: business.refereeBonus,
-          note: `Bono por referido de ${referrer.name}`,
+          note: encodeNote("referredFrom", referrer.name),
           userId: session.userId,
         },
       });
@@ -128,7 +129,7 @@ export async function createCustomerAction(
           customerId: referrer.id,
           type: "EARN",
           points: business.referrerBonus,
-          note: `Bono por referir a ${created.name}`,
+          note: encodeNote("referredTo", created.name),
           userId: session.userId,
         },
       });
@@ -233,6 +234,7 @@ export async function findCustomerAction(query: string): Promise<{ id: string } 
 
 export async function deleteCustomerAction(customerId: string): Promise<void> {
   const session = await requireSession();
+  if (session.role === "STAFF") return; // sólo dueño/admin elimina clientes
   await prisma.customer.deleteMany({
     where: { id: customerId, businessId: session.businessId },
   });

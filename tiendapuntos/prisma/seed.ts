@@ -95,7 +95,7 @@ async function main() {
           type: "EARN",
           points: c.points,
           amount: c.points,
-          note: "Carga inicial de demo",
+          note: "@@demoInitial",
           userId: owner.id,
         },
       });
@@ -114,7 +114,7 @@ async function main() {
           customerId: lucia.id,
           type: "REDEEM",
           points: -reward.pointsCost,
-          note: `Canje: ${reward.name}`,
+          note: `@@redeem|${reward.name}`,
           userId: owner.id,
         },
       }),

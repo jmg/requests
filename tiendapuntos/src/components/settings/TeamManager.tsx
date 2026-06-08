@@ -1,9 +1,10 @@
 "use client";
 
 import { useFormState } from "react-dom";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { deleteTeamMemberAction } from "@/lib/actions/settings";
+import { deleteTeamMemberAction, changeTeamMemberRoleAction } from "@/lib/actions/settings";
 import { createInvitationAction, revokeInvitationAction } from "@/lib/actions/invitations";
 import { SubmitButton } from "@/components/SubmitButton";
 import { CopyField } from "@/components/CopyField";
@@ -34,6 +35,8 @@ export function TeamManager({
   const t = useTranslations("settings");
   const tc = useTranslations("common");
   const tr = useTranslations("roles");
+  const router = useRouter();
+  const [, startTransition] = useTransition();
   const formRef = useRef<HTMLFormElement>(null);
   const [state, formAction] = useFormState(createInvitationAction, undefined);
 
@@ -60,18 +63,37 @@ export function TeamManager({
                 <p className="text-sm text-gray-500">{m.email}</p>
               </div>
               <div className="flex items-center gap-3">
-                <span className="badge bg-gray-100 text-gray-600">{tr(m.role)}</span>
-                {m.role !== "OWNER" && m.id !== currentUserId && (
-                  <form
-                    action={del}
-                    onSubmit={(e) => {
-                      if (!window.confirm(t("deleteMemberConfirm", { name: m.name }))) e.preventDefault();
-                    }}
-                  >
-                    <button className="text-sm text-red-600 hover:underline" type="submit">
-                      {tc("delete")}
-                    </button>
-                  </form>
+                {m.role === "OWNER" || m.id === currentUserId ? (
+                  <span className="badge bg-gray-100 text-gray-600">{tr(m.role)}</span>
+                ) : (
+                  <>
+                    <select
+                      className="input w-auto py-1 text-xs"
+                      defaultValue={m.role}
+                      onChange={(e) =>
+                        startTransition(async () => {
+                          await changeTeamMemberRoleAction(
+                            m.id,
+                            e.target.value as "ADMIN" | "STAFF"
+                          );
+                          router.refresh();
+                        })
+                      }
+                    >
+                      <option value="ADMIN">{tr("ADMIN")}</option>
+                      <option value="STAFF">{tr("STAFF")}</option>
+                    </select>
+                    <form
+                      action={del}
+                      onSubmit={(e) => {
+                        if (!window.confirm(t("deleteMemberConfirm", { name: m.name }))) e.preventDefault();
+                      }}
+                    >
+                      <button className="text-sm text-red-600 hover:underline" type="submit">
+                        {tc("delete")}
+                      </button>
+                    </form>
+                  </>
                 )}
               </div>
             </li>

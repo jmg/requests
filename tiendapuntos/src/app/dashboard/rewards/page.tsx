@@ -11,6 +11,7 @@ export default async function RewardsPage() {
   const t = await getTranslations("rewards");
   const tc = await getTranslations("common");
   const session = (await getSession())!;
+  const isStaff = session.role === "STAFF";
   const business = await prisma.business.findUnique({ where: { id: session.businessId } });
   const pointsName = business?.pointsName ?? "puntos";
 
@@ -24,15 +25,17 @@ export default async function RewardsPage() {
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">{t("title")}</h1>
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-1">
-          <div className="card">
-            <h2 className="mb-4 text-lg font-semibold">{t("newReward")}</h2>
-            <RewardForm pointsName={pointsName} />
+      <div className={`grid gap-6 ${isStaff ? "" : "lg:grid-cols-3"}`}>
+        {!isStaff && (
+          <div className="lg:col-span-1">
+            <div className="card">
+              <h2 className="mb-4 text-lg font-semibold">{t("newReward")}</h2>
+              <RewardForm pointsName={pointsName} />
+            </div>
           </div>
-        </div>
+        )}
 
-        <div className="space-y-3 lg:col-span-2">
+        <div className={`space-y-3 ${isStaff ? "" : "lg:col-span-2"}`}>
           {rewards.length === 0 ? (
             <div className="card text-center text-sm text-gray-500">
               {t("emptyList")}
@@ -63,23 +66,25 @@ export default async function RewardsPage() {
                       {t("redemptionsCount", { count: r._count.redemptions })}
                     </p>
                   </div>
-                  <div className="flex shrink-0 flex-col items-end gap-2">
-                    <Link href={`/dashboard/rewards/${r.id}/edit`} className="btn-secondary px-3 py-1 text-xs">
-                      {tc("edit")}
-                    </Link>
-                    <form action={toggle}>
-                      <button className="btn-secondary px-3 py-1 text-xs" type="submit">
-                        {r.active ? t("deactivate") : t("activate")}
-                      </button>
-                    </form>
-                    <ConfirmButton
-                      action={del}
-                      confirm={t("confirmDelete")}
-                      className="btn-danger px-3 py-1 text-xs"
-                    >
-                      {tc("delete")}
-                    </ConfirmButton>
-                  </div>
+                  {!isStaff && (
+                    <div className="flex shrink-0 flex-col items-end gap-2">
+                      <Link href={`/dashboard/rewards/${r.id}/edit`} className="btn-secondary px-3 py-1 text-xs">
+                        {tc("edit")}
+                      </Link>
+                      <form action={toggle}>
+                        <button className="btn-secondary px-3 py-1 text-xs" type="submit">
+                          {r.active ? t("deactivate") : t("activate")}
+                        </button>
+                      </form>
+                      <ConfirmButton
+                        action={del}
+                        confirm={t("confirmDelete")}
+                        className="btn-danger px-3 py-1 text-xs"
+                      >
+                        {tc("delete")}
+                      </ConfirmButton>
+                    </div>
+                  )}
                 </div>
               );
             })

@@ -6,6 +6,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/auth";
 import { tierMultiplier } from "@/lib/tiers";
+import { encodeNote } from "@/lib/tx-note";
 
 export type ActionState = { error?: string; ok?: boolean } | undefined;
 
@@ -171,7 +172,7 @@ export async function birthdayBonusAction(customerId: string): Promise<ActionSta
         customerId,
         type: "EARN",
         points: business.birthdayBonus,
-        note: "Bono de cumpleaños 🎂",
+        note: encodeNote("birthdayBonus"),
         userId: session.userId,
       },
     }),

@@ -22,6 +22,7 @@ export async function createRewardAction(
 ): Promise<ActionState> {
   const session = await requireSession();
   const t = await getTranslations("errors");
+  if (session.role === "STAFF") return { error: t("noPermission") };
 
   const rewardSchema = z.object({
     name: z.string().min(2, t("nameShort")),
@@ -75,6 +76,7 @@ export async function updateRewardAction(
 ): Promise<ActionState> {
   const session = await requireSession();
   const t = await getTranslations("errors");
+  if (session.role === "STAFF") return { error: t("noPermission") };
 
   const rewardSchema = z.object({
     name: z.string().min(2, t("nameShort")),
@@ -116,6 +118,7 @@ export async function updateRewardAction(
 
 export async function toggleRewardAction(rewardId: string): Promise<void> {
   const session = await requireSession();
+  if (session.role === "STAFF") return;
   const reward = await prisma.reward.findFirst({
     where: { id: rewardId, businessId: session.businessId },
   });
@@ -129,6 +132,7 @@ export async function toggleRewardAction(rewardId: string): Promise<void> {
 
 export async function deleteRewardAction(rewardId: string): Promise<void> {
   const session = await requireSession();
+  if (session.role === "STAFF") return;
   await prisma.reward.deleteMany({
     where: { id: rewardId, businessId: session.businessId },
   });

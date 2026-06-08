@@ -1,4 +1,8 @@
 {
+  "meta": {
+    "title": "TiendaPuntos — Customer loyalty",
+    "description": "A points-based loyalty platform for your business. Award points to your customers and let them redeem rewards."
+  },
   "common": {
     "save": "Save",
     "saveChanges": "Save changes",
@@ -181,6 +185,14 @@
     "EARN": "Earn",
     "REDEEM": "Redeem",
     "ADJUST": "Adjust"
+  },
+  "txNote": {
+    "birthdayBonus": "Birthday bonus 🎂",
+    "referredFrom": "Referral bonus from {value}",
+    "referredTo": "Referral bonus for referring {value}",
+    "redeem": "Redeemed: {value}",
+    "cancelRefund": "Refund for cancelled redemption ({value})",
+    "demoInitial": "Demo initial load"
   },
   "roles": {
     "OWNER": "Owner",

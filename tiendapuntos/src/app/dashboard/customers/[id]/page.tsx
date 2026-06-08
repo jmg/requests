@@ -11,6 +11,7 @@ import { ConfirmButton } from "@/components/ConfirmButton";
 import { TierBadge } from "@/components/TierBadge";
 import { BirthdayBonusButton } from "@/components/customer/BirthdayBonusButton";
 import { CopyField } from "@/components/CopyField";
+import { renderNote } from "@/lib/tx-note";
 
 const txCls: Record<string, string> = {
   EARN: "bg-brand-100 text-brand-700",
@@ -23,6 +24,7 @@ export default async function CustomerDetailPage({ params }: { params: { id: str
   const tc = await getTranslations("common");
   const tt = await getTranslations("txType");
   const tr = await getTranslations("redemptionStatus");
+  const tn = await getTranslations("txNote");
   const locale = await getLocale();
   const session = (await getSession())!;
 
@@ -80,13 +82,15 @@ export default async function CustomerDetailPage({ params }: { params: { id: str
           <Link href={`/dashboard/customers/${customer.id}/edit`} className="btn-secondary">
             {tc("edit")}
           </Link>
-          <ConfirmButton
-            action={deleteAction}
-            confirm={t("confirmDelete")}
-            pendingText={t("deleting")}
-          >
-            {tc("delete")}
-          </ConfirmButton>
+          {session.role !== "STAFF" && (
+            <ConfirmButton
+              action={deleteAction}
+              confirm={t("confirmDelete")}
+              pendingText={t("deleting")}
+            >
+              {tc("delete")}
+            </ConfirmButton>
+          )}
         </div>
       </div>
 
@@ -188,7 +192,7 @@ export default async function CustomerDetailPage({ params }: { params: { id: str
                       <div className="flex items-center gap-3">
                         <span className={`badge ${txCls[tx.type] ?? ""}`}>{label}</span>
                         <div className="text-sm">
-                          <p className="text-gray-700">{tx.note || label}</p>
+                          <p className="text-gray-700">{renderNote(tx.note, tn) || label}</p>
                           <p className="text-xs text-gray-400">
                             {formatDate(tx.createdAt)}
                             {tx.user ? ` · ${tx.user.name}` : ""}

@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import { slugify, generateReferralCode, intlLocale, formatNumber } from "@/lib/utils";
 import { isSegment, SEGMENTS } from "@/lib/segments-shared";
 import { planConfig } from "@/lib/plans";
+import { expiryDate } from "@/lib/expire";
 
 describe("slugify", () => {
   it("lowercases, strips accents and spaces", () => {
@@ -47,5 +48,12 @@ describe("plans", () => {
     expect(planConfig("FREE").customerLimit).toBe(50);
     expect(planConfig("PRO").customerLimit).toBeNull();
     expect(planConfig("PRO").rewardLimit).toBeNull();
+  });
+});
+
+describe("expiryDate", () => {
+  it("adds the configured days to the last activity", () => {
+    const last = new Date("2026-01-01T00:00:00Z");
+    expect(expiryDate(last, 30).toISOString()).toBe("2026-01-31T00:00:00.000Z");
   });
 });

@@ -100,6 +100,27 @@ export async function createCustomerAction(
       },
     });
 
+    // Bono de bienvenida para todo cliente nuevo.
+    if (business.welcomeBonus > 0) {
+      await tx.pointsTransaction.create({
+        data: {
+          businessId: session.businessId,
+          customerId: created.id,
+          type: "EARN",
+          points: business.welcomeBonus,
+          note: encodeNote("welcomeBonus"),
+          userId: session.userId,
+        },
+      });
+      await tx.customer.update({
+        where: { id: created.id },
+        data: {
+          points: { increment: business.welcomeBonus },
+          lifetimePoints: { increment: business.welcomeBonus },
+        },
+      });
+    }
+
     // Bono de bienvenida al referido nuevo.
     if (referrer && business.refereeBonus > 0) {
       await tx.pointsTransaction.create({

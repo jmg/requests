@@ -56,6 +56,16 @@ model Business {
   refereeBonus      Int      @default(0) // puntos para el referido nuevo
   // Bono de cumpleaños
   birthdayBonus     Int      @default(0)
+  // Bono de bienvenida para cada cliente nuevo
+  welcomeBonus      Int      @default(0)
+  // Vencimiento de puntos por inactividad (días). null = no vencen.
+  pointsExpireDays  Int?
+  // Portal público del cliente final
+  portalEnabled     Boolean  @default(true)
+  // Datos de contacto que se muestran en el portal
+  contactPhone      String?
+  address           String?
+  website           String?
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 

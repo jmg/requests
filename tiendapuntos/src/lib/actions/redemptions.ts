@@ -7,6 +7,7 @@ import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/auth";
 import { generateCode } from "@/lib/utils";
 import { encodeNote } from "@/lib/tx-note";
+import { expireStalePoints } from "@/lib/expire";
 
 export type ActionState = { error?: string; ok?: boolean; code?: string } | undefined;
 
@@ -26,6 +27,9 @@ export async function redeemRewardAction(
 
   const parsed = redeemSchema.safeParse({ rewardId: formData.get("rewardId") });
   if (!parsed.success) return { error: parsed.error.issues[0].message };
+
+  // No se pueden canjear puntos ya vencidos por inactividad.
+  await expireStalePoints(customerId, session.businessId);
 
   try {
     const code = await prisma.$transaction(async (tx) => {

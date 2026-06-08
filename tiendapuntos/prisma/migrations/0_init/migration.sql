@@ -27,6 +27,12 @@ CREATE TABLE "Business" (
     "referrerBonus" INTEGER NOT NULL DEFAULT 0,
     "refereeBonus" INTEGER NOT NULL DEFAULT 0,
     "birthdayBonus" INTEGER NOT NULL DEFAULT 0,
+    "welcomeBonus" INTEGER NOT NULL DEFAULT 0,
+    "pointsExpireDays" INTEGER,
+    "portalEnabled" BOOLEAN NOT NULL DEFAULT true,
+    "contactPhone" TEXT,
+    "address" TEXT,
+    "website" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 

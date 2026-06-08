@@ -34,6 +34,11 @@ async function main() {
       referrerBonus: 100,
       refereeBonus: 50,
       birthdayBonus: 200,
+      welcomeBonus: 100,
+      pointsExpireDays: 365,
+      contactPhone: "+54 11 5555-0000",
+      address: "Av. Corrientes 1234, CABA",
+      website: "https://cafecentral.example.com",
       tiers: {
         create: [
           { name: "Bronce", threshold: 0, multiplier: 1, color: "#b45309" },

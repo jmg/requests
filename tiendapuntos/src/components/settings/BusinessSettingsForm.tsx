@@ -15,6 +15,12 @@ type Business = {
   referrerBonus: number;
   refereeBonus: number;
   birthdayBonus: number;
+  welcomeBonus: number;
+  pointsExpireDays: number | null;
+  portalEnabled: boolean;
+  contactPhone: string | null;
+  address: string | null;
+  website: string | null;
 };
 
 export function BusinessSettingsForm({ business }: { business: Business }) {
@@ -120,6 +126,62 @@ export function BusinessSettingsForm({ business }: { business: Business }) {
               min="0"
               step="1"
               defaultValue={business.birthdayBonus}
+            />
+          </div>
+          <div>
+            <label className="label">{t("welcomeBonus")}</label>
+            <input
+              className="input"
+              name="welcomeBonus"
+              type="number"
+              min="0"
+              step="1"
+              defaultValue={business.welcomeBonus}
+            />
+          </div>
+          <div>
+            <label className="label">{t("pointsExpire")}</label>
+            <input
+              className="input"
+              name="pointsExpireDays"
+              type="number"
+              min="1"
+              step="1"
+              placeholder={t("pointsExpireNever")}
+              defaultValue={business.pointsExpireDays ?? ""}
+            />
+            <p className="mt-1 text-xs text-gray-500">{t("pointsExpireHint")}</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="border-t border-gray-100 pt-4">
+        <h3 className="mb-3 text-sm font-semibold text-gray-700">{t("portalSection")}</h3>
+        <label className="flex items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            name="portalEnabled"
+            defaultChecked={business.portalEnabled}
+            className="h-4 w-4 rounded border-gray-300"
+          />
+          {t("portalEnabled")}
+        </label>
+        <div className="mt-4 grid gap-4 sm:grid-cols-3">
+          <div>
+            <label className="label">{t("contactPhone")}</label>
+            <input className="input" name="contactPhone" defaultValue={business.contactPhone ?? ""} />
+          </div>
+          <div>
+            <label className="label">{t("address")}</label>
+            <input className="input" name="address" defaultValue={business.address ?? ""} />
+          </div>
+          <div>
+            <label className="label">{t("website")}</label>
+            <input
+              className="input"
+              name="website"
+              placeholder="https://…"
+              defaultValue={business.website ?? ""}
             />
           </div>
         </div>

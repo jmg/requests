@@ -26,6 +26,13 @@ export async function updateBusinessAction(
     referrerBonus: z.coerce.number().int().min(0),
     refereeBonus: z.coerce.number().int().min(0),
     birthdayBonus: z.coerce.number().int().min(0),
+    welcomeBonus: z.coerce.number().int().min(0),
+    // "" => null (no vencen)
+    pointsExpireDays: z.union([z.literal(""), z.coerce.number().int().min(1)]),
+    portalEnabled: z.union([z.literal("on"), z.null()]).optional(),
+    contactPhone: z.string().max(40).optional(),
+    address: z.string().max(120).optional(),
+    website: z.string().max(120).optional(),
   });
 
   const parsed = businessSchema.safeParse({
@@ -38,6 +45,12 @@ export async function updateBusinessAction(
     referrerBonus: formData.get("referrerBonus") || 0,
     refereeBonus: formData.get("refereeBonus") || 0,
     birthdayBonus: formData.get("birthdayBonus") || 0,
+    welcomeBonus: formData.get("welcomeBonus") || 0,
+    pointsExpireDays: (formData.get("pointsExpireDays") as string) ?? "",
+    portalEnabled: formData.get("portalEnabled"),
+    contactPhone: formData.get("contactPhone") || undefined,
+    address: formData.get("address") || undefined,
+    website: formData.get("website") || undefined,
   });
 
   if (!parsed.success) return { error: parsed.error.issues[0].message };
@@ -54,6 +67,12 @@ export async function updateBusinessAction(
       referrerBonus: parsed.data.referrerBonus,
       refereeBonus: parsed.data.refereeBonus,
       birthdayBonus: parsed.data.birthdayBonus,
+      welcomeBonus: parsed.data.welcomeBonus,
+      pointsExpireDays: parsed.data.pointsExpireDays === "" ? null : parsed.data.pointsExpireDays,
+      portalEnabled: formData.get("portalEnabled") === "on",
+      contactPhone: parsed.data.contactPhone?.trim() || null,
+      address: parsed.data.address?.trim() || null,
+      website: parsed.data.website?.trim() || null,
     },
   });
 

@@ -21,7 +21,12 @@ Construida con **Next.js 14 (App Router)**, **Prisma** y **PostgreSQL**.
 - **Ajustes manuales** de puntos (+/-).
 - **Movimientos**: registro completo y paginado de todas las transacciones, con quién las cargó.
 - **Resumen**: métricas (clientes, puntos emitidos/canjeados, canjes pendientes, mejores clientes).
-- **Configuración**: nombre del programa, nombre de los puntos, moneda, ratio de puntos y gestión del equipo.
+- **Configuración del programa** (todo editable por el negocio): nombre, nombre de los puntos, moneda,
+  ratio de puntos, branding, **bonos** (bienvenida, referidos, cumpleaños), **vencimiento de puntos por
+  inactividad**, activar/desactivar el **portal público**, datos de **contacto** del portal y gestión del equipo.
+- **Vencimiento de puntos**: configurable en días de inactividad (vacío = no vencen). Se aplica de forma
+  perezosa al sumar/canjear/ajustar y al ver la ficha o el portal: el saldo vencido se pone en cero con un
+  movimiento registrado (los puntos de por vida del nivel VIP no se tocan).
 - **Autenticación propia** con JWT en cookie httpOnly (`jose` + `bcryptjs`) y middleware de protección de rutas.
 - **Cuenta y seguridad**: cada usuario edita su nombre y **cambia su contraseña** (`/dashboard/account`), y hay
   flujo de **recuperación de contraseña** (`/forgot` → `/reset/[token]`, token de un solo uso, email stubbeado).

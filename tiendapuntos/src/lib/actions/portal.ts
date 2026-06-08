@@ -3,6 +3,7 @@
 import { getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
 import { currentTier } from "@/lib/tiers";
+import { expireStalePoints } from "@/lib/expire";
 
 export type PortalResult =
   | {
@@ -49,13 +50,20 @@ export async function lookupCustomerAction(
     };
   }
 
+  // Aplicamos el vencimiento por inactividad antes de mostrar el saldo.
+  await expireStalePoints(customer.id, business.id);
+  const fresh = await prisma.customer.findUnique({
+    where: { id: customer.id },
+    select: { points: true },
+  });
+
   const tier = currentTier(business.tiers, customer.lifetimePoints);
 
   return {
     ok: true,
     customer: {
       name: customer.name,
-      points: customer.points,
+      points: fresh?.points ?? customer.points,
       referralCode: customer.referralCode,
       tier: tier ? { name: tier.name, color: tier.color } : null,
     },

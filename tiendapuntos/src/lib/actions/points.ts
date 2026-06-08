@@ -7,6 +7,7 @@ import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/auth";
 import { tierMultiplier } from "@/lib/tiers";
 import { encodeNote } from "@/lib/tx-note";
+import { expireStalePoints } from "@/lib/expire";
 
 export type ActionState = { error?: string; ok?: boolean } | undefined;
 
@@ -38,6 +39,9 @@ export async function earnPointsAction(
   if (!parsed.success) {
     return { error: t("invalidData") };
   }
+
+  // Vencen los puntos viejos (si corresponde) antes de sumar.
+  await expireStalePoints(customerId, session.businessId);
 
   const customer = await prisma.customer.findFirst({
     where: { id: customerId, businessId: session.businessId },
@@ -115,6 +119,8 @@ export async function adjustPointsAction(
 
   const delta = parsed.data.points;
   if (delta === 0) return { error: t("adjustNotZero") };
+
+  await expireStalePoints(customerId, session.businessId);
 
   const customer = await prisma.customer.findFirst({
     where: { id: customerId, businessId: session.businessId },

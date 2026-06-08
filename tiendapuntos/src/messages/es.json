@@ -174,7 +174,9 @@
     "footer": "Programa de fidelización de {business}",
     "yourTier": "Tu nivel",
     "yourReferralCode": "Tu código de referido",
-    "shareReferral": "Compartilo: cuando lo usen, ganás puntos."
+    "shareReferral": "Compartilo: cuando lo usen, ganás puntos.",
+    "portalDisabled": "Este programa no está disponible por ahora.",
+    "expiryNote": "Tus {points} vencen a los {days} días sin actividad."
   },
   "redemptionStatus": {
     "PENDING": "Pendiente",
@@ -192,7 +194,9 @@
     "referredTo": "Bono por referir a {value}",
     "redeem": "Canje: {value}",
     "cancelRefund": "Reintegro por canje cancelado ({value})",
-    "demoInitial": "Carga inicial de demo"
+    "demoInitial": "Carga inicial de demo",
+    "welcomeBonus": "Bono de bienvenida 🎁",
+    "expired": "Puntos vencidos por inactividad"
   },
   "roles": {
     "OWNER": "Dueño",
@@ -448,10 +452,19 @@
     "deleteMemberConfirm": "¿Eliminar a {name}?",
     "emailLabel": "Email",
     "roleLabel": "Rol",
-    "loyaltyTitle": "Referidos y cumpleaños",
+    "loyaltyTitle": "Reglas del programa",
     "referrerBonus": "Puntos para quien refiere",
     "refereeBonus": "Puntos para el referido nuevo",
     "birthdayBonus": "Bono de cumpleaños",
+    "welcomeBonus": "Bono de bienvenida",
+    "pointsExpire": "Vencen los puntos (días)",
+    "pointsExpireNever": "No vencen",
+    "pointsExpireHint": "Días de inactividad tras los cuales el saldo vence. Vacío = no vencen.",
+    "portalSection": "Portal y contacto",
+    "portalEnabled": "Portal público activado",
+    "contactPhone": "Teléfono de contacto",
+    "address": "Dirección",
+    "website": "Sitio web",
     "tiersTitle": "Niveles VIP",
     "tiersSubtitle": "Definí niveles por puntos acumulados. El multiplicador aplica al sumar puntos por compra.",
     "tierName": "Nombre",

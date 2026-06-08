@@ -174,7 +174,9 @@
     "footer": "{business} loyalty program",
     "yourTier": "Your tier",
     "yourReferralCode": "Your referral code",
-    "shareReferral": "Share it: when it's used, you earn points."
+    "shareReferral": "Share it: when it's used, you earn points.",
+    "portalDisabled": "This program isn't available right now.",
+    "expiryNote": "Your {points} expire after {days} days of inactivity."
   },
   "redemptionStatus": {
     "PENDING": "Pending",
@@ -192,7 +194,9 @@
     "referredTo": "Referral bonus for referring {value}",
     "redeem": "Redeemed: {value}",
     "cancelRefund": "Refund for cancelled redemption ({value})",
-    "demoInitial": "Demo initial load"
+    "demoInitial": "Demo initial load",
+    "welcomeBonus": "Welcome bonus 🎁",
+    "expired": "Points expired due to inactivity"
   },
   "roles": {
     "OWNER": "Owner",
@@ -448,10 +452,19 @@
     "deleteMemberConfirm": "Remove {name}?",
     "emailLabel": "Email",
     "roleLabel": "Role",
-    "loyaltyTitle": "Referrals & birthdays",
+    "loyaltyTitle": "Program rules",
     "referrerBonus": "Points for the referrer",
     "refereeBonus": "Points for the new referred customer",
     "birthdayBonus": "Birthday bonus",
+    "welcomeBonus": "Welcome bonus",
+    "pointsExpire": "Points expire (days)",
+    "pointsExpireNever": "Never",
+    "pointsExpireHint": "Days of inactivity after which the balance expires. Empty = never.",
+    "portalSection": "Portal & contact",
+    "portalEnabled": "Public portal enabled",
+    "contactPhone": "Contact phone",
+    "address": "Address",
+    "website": "Website",
     "tiersTitle": "VIP tiers",
     "tiersSubtitle": "Define tiers by lifetime points. The multiplier applies when earning points by purchase.",
     "tierName": "Name",

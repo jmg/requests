@@ -12,6 +12,7 @@ import { TierBadge } from "@/components/TierBadge";
 import { BirthdayBonusButton } from "@/components/customer/BirthdayBonusButton";
 import { CopyField } from "@/components/CopyField";
 import { renderNote } from "@/lib/tx-note";
+import { expireStalePoints } from "@/lib/expire";
 
 const txCls: Record<string, string> = {
   EARN: "bg-brand-100 text-brand-700",
@@ -27,6 +28,9 @@ export default async function CustomerDetailPage({ params }: { params: { id: str
   const tn = await getTranslations("txNote");
   const locale = await getLocale();
   const session = (await getSession())!;
+
+  // Aplica el vencimiento por inactividad antes de mostrar el saldo.
+  await expireStalePoints(params.id, session.businessId);
 
   const [customer, business, rewards] = await Promise.all([
     prisma.customer.findFirst({

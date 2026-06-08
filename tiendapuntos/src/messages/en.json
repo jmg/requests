@@ -16,7 +16,9 @@
     "processing": "Processing…",
     "optional": "(optional)",
     "active": "Active",
-    "inactive": "Inactive"
+    "inactive": "Inactive",
+    "error": "Something went wrong",
+    "retry": "Retry"
   },
   "nav": {
     "summary": "Overview",
@@ -28,8 +30,10 @@
     "campaigns": "Campaigns",
     "plan": "Plan",
     "settings": "Settings",
+    "account": "My account",
     "portal": "Public portal",
-    "logout": "Sign out"
+    "logout": "Sign out",
+    "menu": "Menu"
   },
   "campaigns": {
     "title": "Campaigns",
@@ -89,7 +93,41 @@
     "submit": "Sign in",
     "submitting": "Signing in…",
     "noAccount": "Don't have an account?",
-    "createFree": "Create one for free"
+    "createFree": "Create one for free",
+    "forgot": "Forgot your password?",
+    "resetDone": "Password updated. Sign in with the new one."
+  },
+  "account": {
+    "title": "My account",
+    "profileTitle": "Profile",
+    "email": "Email",
+    "name": "Name",
+    "saveProfile": "Save profile",
+    "profileSaved": "Profile updated ✅",
+    "passwordTitle": "Change password",
+    "currentPassword": "Current password",
+    "newPassword": "New password",
+    "changePassword": "Change password",
+    "passwordChanged": "Password updated ✅"
+  },
+  "forgot": {
+    "title": "Reset password",
+    "subtitle": "Enter your email and we'll send you a link to reset it.",
+    "email": "Email",
+    "submit": "Send link",
+    "sending": "Sending…",
+    "sent": "If the email exists, we've sent instructions.",
+    "devLink": "Email is simulated in this demo. Use this link:",
+    "backToLogin": "Back to sign in"
+  },
+  "reset": {
+    "title": "New password",
+    "newPassword": "New password",
+    "submit": "Save password",
+    "submitting": "Saving…",
+    "invalidTitle": "Invalid link",
+    "invalidText": "This link is invalid or expired. Request a new one.",
+    "requestNew": "Request a new one"
   },
   "register": {
     "title": "Create your account",
@@ -457,6 +495,8 @@
     "multiplierMin": "The multiplier must be at least 1",
     "noBirthdayBonus": "No birthday bonus is configured",
     "messageShort": "The message is too short",
-    "noRecipients": "The segment has no customers"
+    "noRecipients": "The segment has no customers",
+    "wrongCurrentPassword": "The current password is incorrect",
+    "resetInvalid": "The link is invalid or expired"
   }
 }

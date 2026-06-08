@@ -21,6 +21,9 @@ Construida con **Next.js 14 (App Router)**, **Prisma** y **PostgreSQL**.
 - **Resumen**: métricas (clientes, puntos emitidos/canjeados, canjes pendientes, mejores clientes).
 - **Configuración**: nombre del programa, nombre de los puntos, moneda, ratio de puntos y gestión del equipo.
 - **Autenticación propia** con JWT en cookie httpOnly (`jose` + `bcryptjs`) y middleware de protección de rutas.
+- **Cuenta y seguridad**: cada usuario edita su nombre y **cambia su contraseña** (`/dashboard/account`), y hay
+  flujo de **recuperación de contraseña** (`/forgot` → `/reset/[token]`, token de un solo uso, email stubbeado).
+- **UX**: paginación en clientes y movimientos, estados de **carga/error**, y **menú colapsable en mobile**.
 
 ### SaaS
 - **Portal público del cliente final** (`/p/[slug]`): página sin login donde el cliente consulta su saldo

@@ -16,7 +16,9 @@
     "processing": "Procesando…",
     "optional": "(opcional)",
     "active": "Activo",
-    "inactive": "Inactivo"
+    "inactive": "Inactivo",
+    "error": "Algo salió mal",
+    "retry": "Reintentar"
   },
   "nav": {
     "summary": "Resumen",
@@ -28,8 +30,10 @@
     "campaigns": "Campañas",
     "plan": "Plan",
     "settings": "Configuración",
+    "account": "Mi cuenta",
     "portal": "Portal público",
-    "logout": "Cerrar sesión"
+    "logout": "Cerrar sesión",
+    "menu": "Menú"
   },
   "campaigns": {
     "title": "Campañas",
@@ -89,7 +93,41 @@
     "submit": "Ingresar",
     "submitting": "Ingresando…",
     "noAccount": "¿No tenés cuenta?",
-    "createFree": "Creá una gratis"
+    "createFree": "Creá una gratis",
+    "forgot": "¿Olvidaste tu contraseña?",
+    "resetDone": "Contraseña actualizada. Ingresá con la nueva."
+  },
+  "account": {
+    "title": "Mi cuenta",
+    "profileTitle": "Perfil",
+    "email": "Email",
+    "name": "Nombre",
+    "saveProfile": "Guardar perfil",
+    "profileSaved": "Perfil actualizado ✅",
+    "passwordTitle": "Cambiar contraseña",
+    "currentPassword": "Contraseña actual",
+    "newPassword": "Nueva contraseña",
+    "changePassword": "Cambiar contraseña",
+    "passwordChanged": "Contraseña actualizada ✅"
+  },
+  "forgot": {
+    "title": "Restablecer contraseña",
+    "subtitle": "Ingresá tu email y te enviaremos un link para restablecerla.",
+    "email": "Email",
+    "submit": "Enviar link",
+    "sending": "Enviando…",
+    "sent": "Si el email existe, te enviamos las instrucciones.",
+    "devLink": "El email está simulado en esta demo. Usá este link:",
+    "backToLogin": "Volver a ingresar"
+  },
+  "reset": {
+    "title": "Nueva contraseña",
+    "newPassword": "Nueva contraseña",
+    "submit": "Guardar contraseña",
+    "submitting": "Guardando…",
+    "invalidTitle": "Link no válido",
+    "invalidText": "Este link no es válido o expiró. Pedí uno nuevo.",
+    "requestNew": "Pedir uno nuevo"
   },
   "register": {
     "title": "Creá tu cuenta",
@@ -457,6 +495,8 @@
     "multiplierMin": "El multiplicador debe ser al menos 1",
     "noBirthdayBonus": "No hay un bono de cumpleaños configurado",
     "messageShort": "El mensaje es muy corto",
-    "noRecipients": "El segmento no tiene clientes"
+    "noRecipients": "El segmento no tiene clientes",
+    "wrongCurrentPassword": "La contraseña actual es incorrecta",
+    "resetInvalid": "El link no es válido o expiró"
   }
 }

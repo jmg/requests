@@ -1,38 +1,52 @@
 import Link from "next/link";
-import { getTranslations } from "next-intl/server";
+import { getTranslations, getLocale } from "next-intl/server";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { formatNumber, formatDate } from "@/lib/utils";
 
+const PAGE_SIZE = 50;
+
 export default async function CustomersPage({
   searchParams,
 }: {
-  searchParams: { q?: string };
+  searchParams: { q?: string; page?: string };
 }) {
   const t = await getTranslations("customers");
   const tc = await getTranslations("common");
+  const tt = await getTranslations("transactions");
+  const locale = await getLocale();
   const session = (await getSession())!;
   const q = searchParams.q?.trim() || "";
+  const page = Math.max(1, Number(searchParams.page) || 1);
 
   const business = await prisma.business.findUnique({ where: { id: session.businessId } });
   const pointsName = business?.pointsName ?? "puntos";
 
-  const customers = await prisma.customer.findMany({
-    where: {
-      businessId: session.businessId,
-      ...(q
-        ? {
-            OR: [
-              { name: { contains: q, mode: "insensitive" } },
-              { email: { contains: q, mode: "insensitive" } },
-              { phone: { contains: q } },
-            ],
-          }
-        : {}),
-    },
-    orderBy: { createdAt: "desc" },
-    take: 100,
-  });
+  const where = {
+    businessId: session.businessId,
+    ...(q
+      ? {
+          OR: [
+            { name: { contains: q, mode: "insensitive" as const } },
+            { email: { contains: q, mode: "insensitive" as const } },
+            { phone: { contains: q } },
+          ],
+        }
+      : {}),
+  };
+
+  const [customers, total] = await Promise.all([
+    prisma.customer.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      skip: (page - 1) * PAGE_SIZE,
+      take: PAGE_SIZE,
+    }),
+    prisma.customer.count({ where }),
+  ]);
+
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const qs = (p: number) => `?${new URLSearchParams({ ...(q ? { q } : {}), page: String(p) })}`;
 
   return (
     <div className="space-y-6">
@@ -86,19 +100,35 @@ export default async function CustomersPage({
                       {c.name}
                     </Link>
                   </td>
-                  <td className="px-4 py-3 text-gray-500">
-                    {c.phone || c.email || "—"}
-                  </td>
+                  <td className="px-4 py-3 text-gray-500">{c.phone || c.email || "—"}</td>
                   <td className="px-4 py-3 text-right font-semibold text-brand-700">
-                    {formatNumber(c.points)}
+                    {formatNumber(c.points, locale)}
                   </td>
-                  <td className="px-4 py-3 text-gray-400">{formatDate(c.createdAt)}</td>
+                  <td className="px-4 py-3 text-gray-400">{formatDate(c.createdAt, locale)}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         )}
       </div>
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between text-sm">
+          <Link
+            href={`/dashboard/customers${qs(page - 1)}`}
+            className={`btn-secondary ${page <= 1 ? "pointer-events-none opacity-40" : ""}`}
+          >
+            {tt("prev")}
+          </Link>
+          <span className="text-gray-500">{tt("page", { page, total: totalPages })}</span>
+          <Link
+            href={`/dashboard/customers${qs(page + 1)}`}
+            className={`btn-secondary ${page >= totalPages ? "pointer-events-none opacity-40" : ""}`}
+          >
+            {tt("next")}
+          </Link>
+        </div>
+      )}
     </div>
   );
 }

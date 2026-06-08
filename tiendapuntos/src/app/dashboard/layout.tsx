@@ -7,6 +7,7 @@ import { logoutAction } from "@/lib/actions/auth";
 import { NavLink } from "@/components/NavLink";
 import { Logo } from "@/components/Logo";
 import { LocaleSwitcher } from "@/components/LocaleSwitcher";
+import { CollapsibleNav } from "@/components/CollapsibleNav";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const session = await getSession();
@@ -37,6 +38,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
             </div>
           </div>
 
+          <CollapsibleNav>
           <nav className="flex flex-1 flex-col gap-1 overflow-y-auto p-3">
             <NavLink href="/dashboard" icon="🏠" exact>
               {t("summary")}
@@ -78,10 +80,10 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
           <div className="border-t border-gray-100 p-3">
             <div className="flex items-center justify-between px-2 pb-2">
-              <div className="min-w-0">
+              <Link href="/dashboard/account" className="min-w-0 hover:opacity-80" title={t("account")}>
                 <p className="truncate text-sm font-medium text-gray-700">{session.name}</p>
                 <p className="truncate text-xs text-gray-400">{session.email}</p>
-              </div>
+              </Link>
               <LocaleSwitcher />
             </div>
             <form action={logoutAction}>
@@ -90,6 +92,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
               </button>
             </form>
           </div>
+          </CollapsibleNav>
         </div>
       </aside>
 

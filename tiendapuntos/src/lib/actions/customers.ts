@@ -7,8 +7,25 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/auth";
 import { planConfig } from "@/lib/plans";
+import { generateReferralCode } from "@/lib/utils";
 
 export type ActionState = { error?: string; ok?: boolean } | undefined;
+
+function parseBirthday(raw: FormDataEntryValue | null): Date | null {
+  const v = String(raw ?? "").trim();
+  if (!v) return null;
+  const d = new Date(`${v}T00:00:00`);
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
+async function uniqueReferralCode(): Promise<string> {
+  for (let i = 0; i < 12; i++) {
+    const code = generateReferralCode();
+    const exists = await prisma.customer.findUnique({ where: { referralCode: code } });
+    if (!exists) return code;
+  }
+  return generateReferralCode() + Date.now().toString(36).slice(-3).toUpperCase();
+}
 
 export async function createCustomerAction(
   _prev: ActionState,
@@ -37,13 +54,12 @@ export async function createCustomerAction(
 
   // Límite del plan
   const business = await prisma.business.findUnique({ where: { id: session.businessId } });
-  const limit = business ? planConfig(business.plan).customerLimit : null;
+  if (!business) return { error: t("businessNotFound") };
+  const limit = planConfig(business.plan).customerLimit;
   if (limit !== null) {
     const count = await prisma.customer.count({ where: { businessId: session.businessId } });
     if (count >= limit) {
-      return {
-        error: t("customerLimit", { limit, plan: business!.plan }),
-      };
+      return { error: t("customerLimit", { limit, plan: business.plan }) };
     }
   }
 
@@ -58,14 +74,74 @@ export async function createCustomerAction(
     }
   }
 
-  const customer = await prisma.customer.create({
-    data: {
-      businessId: session.businessId,
-      name: parsed.data.name.trim(),
-      email: parsed.data.email?.trim() || null,
-      phone,
-      notes: parsed.data.notes?.trim() || null,
-    },
+  // Referido: buscamos el cliente que refiere por su código, dentro del negocio.
+  const referralInput = String(formData.get("referralCode") ?? "").trim().toUpperCase();
+  const referrer = referralInput
+    ? await prisma.customer.findFirst({
+        where: { businessId: session.businessId, referralCode: referralInput },
+      })
+    : null;
+
+  const birthday = parseBirthday(formData.get("birthday"));
+  const referralCode = await uniqueReferralCode();
+
+  const customer = await prisma.$transaction(async (tx) => {
+    const created = await tx.customer.create({
+      data: {
+        businessId: session.businessId,
+        name: parsed.data.name.trim(),
+        email: parsed.data.email?.trim() || null,
+        phone,
+        notes: parsed.data.notes?.trim() || null,
+        birthday,
+        referralCode,
+        referredById: referrer?.id ?? null,
+      },
+    });
+
+    // Bono de bienvenida al referido nuevo.
+    if (referrer && business.refereeBonus > 0) {
+      await tx.pointsTransaction.create({
+        data: {
+          businessId: session.businessId,
+          customerId: created.id,
+          type: "EARN",
+          points: business.refereeBonus,
+          note: `Bono por referido de ${referrer.name}`,
+          userId: session.userId,
+        },
+      });
+      await tx.customer.update({
+        where: { id: created.id },
+        data: {
+          points: { increment: business.refereeBonus },
+          lifetimePoints: { increment: business.refereeBonus },
+        },
+      });
+    }
+
+    // Bono para quien refirió.
+    if (referrer && business.referrerBonus > 0) {
+      await tx.pointsTransaction.create({
+        data: {
+          businessId: session.businessId,
+          customerId: referrer.id,
+          type: "EARN",
+          points: business.referrerBonus,
+          note: `Bono por referir a ${created.name}`,
+          userId: session.userId,
+        },
+      });
+      await tx.customer.update({
+        where: { id: referrer.id },
+        data: {
+          points: { increment: business.referrerBonus },
+          lifetimePoints: { increment: business.referrerBonus },
+        },
+      });
+    }
+
+    return created;
   });
 
   revalidatePath("/dashboard/customers");
@@ -118,6 +194,7 @@ export async function updateCustomerAction(
       email: parsed.data.email?.trim() || null,
       phone,
       notes: parsed.data.notes?.trim() || null,
+      birthday: parseBirthday(formData.get("birthday")),
     },
   });
 

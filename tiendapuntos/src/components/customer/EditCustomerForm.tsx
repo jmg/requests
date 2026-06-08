@@ -14,6 +14,7 @@ type Customer = {
   email: string | null;
   phone: string | null;
   notes: string | null;
+  birthday: string | null; // YYYY-MM-DD
 };
 
 export function EditCustomerForm({ customer }: { customer: Customer }) {
@@ -54,6 +55,18 @@ export function EditCustomerForm({ customer }: { customer: Customer }) {
             defaultValue={customer.email ?? ""}
           />
         </div>
+      </div>
+      <div>
+        <label className="label" htmlFor="birthday">
+          {t("birthday")}
+        </label>
+        <input
+          className="input"
+          id="birthday"
+          name="birthday"
+          type="date"
+          defaultValue={customer.birthday ?? ""}
+        />
       </div>
       <div>
         <label className="label" htmlFor="notes">

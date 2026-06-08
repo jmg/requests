@@ -20,13 +20,27 @@ export function generateCode(): string {
   return `${pick(4)}-${pick(4)}`;
 }
 
-export function formatNumber(n: number): string {
-  return new Intl.NumberFormat("es-AR").format(n);
+// Código de referido corto y legible (ej: "JUAN-7K3Q").
+export function generateReferralCode(): string {
+  const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  return Array.from(
+    { length: 6 },
+    () => alphabet[Math.floor(Math.random() * alphabet.length)]
+  ).join("");
 }
 
-export function formatDate(d: Date | string): string {
+// Mapea el locale de la app (es/en) a un BCP-47 para Intl.
+export function intlLocale(locale?: string): string {
+  return locale === "en" ? "en-US" : "es-AR";
+}
+
+export function formatNumber(n: number, locale?: string): string {
+  return new Intl.NumberFormat(intlLocale(locale)).format(n);
+}
+
+export function formatDate(d: Date | string, locale?: string): string {
   const date = typeof d === "string" ? new Date(d) : d;
-  return new Intl.DateTimeFormat("es-AR", {
+  return new Intl.DateTimeFormat(intlLocale(locale), {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
@@ -35,8 +49,8 @@ export function formatDate(d: Date | string): string {
   }).format(date);
 }
 
-export function formatCurrency(n: number, currency = "ARS"): string {
-  return new Intl.NumberFormat("es-AR", {
+export function formatCurrency(n: number, currency = "ARS", locale?: string): string {
+  return new Intl.NumberFormat(intlLocale(locale), {
     style: "currency",
     currency,
     maximumFractionDigits: 0,

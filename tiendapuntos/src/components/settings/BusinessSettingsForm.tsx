@@ -12,6 +12,9 @@ type Business = {
   currency: string;
   brandColor: string;
   logoEmoji: string;
+  referrerBonus: number;
+  refereeBonus: number;
+  birthdayBonus: number;
 };
 
 export function BusinessSettingsForm({ business }: { business: Business }) {
@@ -81,6 +84,45 @@ export function BusinessSettingsForm({ business }: { business: Business }) {
         <p className="mt-1 text-xs text-gray-500">
           {t("brandingHint")}
         </p>
+      </div>
+
+      <div className="border-t border-gray-100 pt-4">
+        <h3 className="mb-3 text-sm font-semibold text-gray-700">{t("loyaltyTitle")}</h3>
+        <div className="grid gap-4 sm:grid-cols-3">
+          <div>
+            <label className="label">{t("referrerBonus")}</label>
+            <input
+              className="input"
+              name="referrerBonus"
+              type="number"
+              min="0"
+              step="1"
+              defaultValue={business.referrerBonus}
+            />
+          </div>
+          <div>
+            <label className="label">{t("refereeBonus")}</label>
+            <input
+              className="input"
+              name="refereeBonus"
+              type="number"
+              min="0"
+              step="1"
+              defaultValue={business.refereeBonus}
+            />
+          </div>
+          <div>
+            <label className="label">{t("birthdayBonus")}</label>
+            <input
+              className="input"
+              name="birthdayBonus"
+              type="number"
+              min="0"
+              step="1"
+              defaultValue={business.birthdayBonus}
+            />
+          </div>
+        </div>
       </div>
 
       {state?.error && (

@@ -113,11 +113,11 @@ export function TeamManager({
         <form ref={formRef} action={formAction} className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label className="label">Email</label>
+              <label className="label">{t("emailLabel")}</label>
               <input className="input" name="email" type="email" required />
             </div>
             <div>
-              <label className="label">Rol</label>
+              <label className="label">{t("roleLabel")}</label>
               <select className="input" name="role" defaultValue="STAFF">
                 <option value="STAFF">{t("roleStaff")}</option>
                 <option value="ADMIN">{t("roleAdmin")}</option>

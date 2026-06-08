@@ -24,6 +24,9 @@ export async function updateBusinessAction(
     currency: z.string().min(1).max(5),
     brandColor: z.string().regex(/^#[0-9a-fA-F]{6}$/, t("invalidColor")),
     logoEmoji: z.string().min(1).max(4),
+    referrerBonus: z.coerce.number().int().min(0),
+    refereeBonus: z.coerce.number().int().min(0),
+    birthdayBonus: z.coerce.number().int().min(0),
   });
 
   const parsed = businessSchema.safeParse({
@@ -33,6 +36,9 @@ export async function updateBusinessAction(
     currency: formData.get("currency"),
     brandColor: formData.get("brandColor"),
     logoEmoji: formData.get("logoEmoji"),
+    referrerBonus: formData.get("referrerBonus") || 0,
+    refereeBonus: formData.get("refereeBonus") || 0,
+    birthdayBonus: formData.get("birthdayBonus") || 0,
   });
 
   if (!parsed.success) return { error: parsed.error.issues[0].message };
@@ -46,6 +52,9 @@ export async function updateBusinessAction(
       currency: parsed.data.currency.trim().toUpperCase(),
       brandColor: parsed.data.brandColor,
       logoEmoji: parsed.data.logoEmoji.trim(),
+      referrerBonus: parsed.data.referrerBonus,
+      refereeBonus: parsed.data.refereeBonus,
+      birthdayBonus: parsed.data.birthdayBonus,
     },
   });
 

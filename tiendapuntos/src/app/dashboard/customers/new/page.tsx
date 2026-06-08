@@ -41,6 +41,20 @@ export default function NewCustomerPage() {
             <input className="input" id="email" name="email" type="email" />
           </div>
         </div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label className="label" htmlFor="birthday">
+              {t("birthday")}
+            </label>
+            <input className="input" id="birthday" name="birthday" type="date" />
+          </div>
+          <div>
+            <label className="label" htmlFor="referralCode">
+              {t("referralCodeOptional")}
+            </label>
+            <input className="input uppercase" id="referralCode" name="referralCode" />
+          </div>
+        </div>
         <div>
           <label className="label" htmlFor="notes">
             {t("notes")}

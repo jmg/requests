@@ -6,6 +6,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { createSession, destroySession, hashPassword, verifyPassword } from "@/lib/auth";
 import { slugify } from "@/lib/utils";
+import { DEFAULT_TIERS } from "@/lib/tiers";
 
 export type ActionState = { error?: string } | undefined;
 
@@ -58,6 +59,7 @@ export async function registerAction(_prev: ActionState, formData: FormData): Pr
         create: {
           name: businessName,
           slug,
+          tiers: { create: DEFAULT_TIERS },
         },
       },
     },

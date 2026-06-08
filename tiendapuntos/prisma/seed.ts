@@ -31,6 +31,16 @@ async function main() {
       brandColor: "#7c3aed",
       logoEmoji: "☕",
       plan: "PRO",
+      referrerBonus: 100,
+      refereeBonus: 50,
+      birthdayBonus: 200,
+      tiers: {
+        create: [
+          { name: "Bronce", threshold: 0, multiplier: 1, color: "#b45309" },
+          { name: "Plata", threshold: 1000, multiplier: 1.2, color: "#64748b" },
+          { name: "Oro", threshold: 5000, multiplier: 1.5, color: "#d97706" },
+        ],
+      },
       users: {
         create: [
           { name: "Ana Dueña", email: "demo@tiendapuntos.com", password, role: "OWNER" },
@@ -52,11 +62,15 @@ async function main() {
   const owner = business.users.find((u) => u.role === "OWNER")!;
   const reward = business.rewards[0];
 
+  // Un par de cumpleaños en el mes actual para ver el widget.
+  const thisMonth = new Date().getMonth();
+  const bday = (day: number) => new Date(1990, thisMonth, day);
+
   const customersData = [
-    { name: "Juan Pérez", phone: "+54 11 5555-1111", email: "juan@example.com", points: 350 },
-    { name: "María Gómez", phone: "+54 11 5555-2222", email: "maria@example.com", points: 120 },
-    { name: "Carlos Ruiz", phone: "+54 11 5555-3333", points: 0 },
-    { name: "Lucía Fernández", phone: "+54 11 5555-4444", email: "lucia@example.com", points: 980 },
+    { name: "Juan Pérez", phone: "+54 11 5555-1111", email: "juan@example.com", points: 350, birthday: bday(12) },
+    { name: "María Gómez", phone: "+54 11 5555-2222", email: "maria@example.com", points: 120, birthday: bday(24) },
+    { name: "Carlos Ruiz", phone: "+54 11 5555-3333", points: 0, birthday: null as Date | null },
+    { name: "Lucía Fernández", phone: "+54 11 5555-4444", email: "lucia@example.com", points: 5980, birthday: null as Date | null },
   ];
 
   for (const c of customersData) {
@@ -67,6 +81,9 @@ async function main() {
         phone: c.phone,
         email: c.email ?? null,
         points: c.points,
+        lifetimePoints: c.points,
+        birthday: c.birthday,
+        referralCode: code().replace("-", ""),
       },
     });
 

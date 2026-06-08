@@ -103,7 +103,10 @@
     "code": "Code {code}",
     "availableRewards": "Available rewards",
     "noRewards": "No rewards added yet.",
-    "footer": "{business} loyalty program"
+    "footer": "{business} loyalty program",
+    "yourTier": "Your tier",
+    "yourReferralCode": "Your referral code",
+    "shareReferral": "Share it: when it's used, you earn points."
   },
   "redemptionStatus": {
     "PENDING": "Pending",
@@ -135,7 +138,10 @@
     "topCustomers": "Top customers",
     "noCustomers": "You haven't added customers yet.",
     "recentActivity": "Latest activity",
-    "noActivity": "No activity yet."
+    "noActivity": "No activity yet.",
+    "birthdaysTitle": "Birthdays this month",
+    "noBirthdays": "No birthdays this month.",
+    "birthdayOn": "on the {day}"
   },
   "onboarding": {
     "title": "👋 Welcome, let's get started",
@@ -182,6 +188,19 @@
     "historyTitle": "{points} history",
     "noMovements": "No activity yet.",
     "codeLabel": "code {code}",
+    "birthday": "Birthday",
+    "referralCodeOptional": "Referral code (optional)",
+    "referralCodeHint": "If another customer referred them, enter their code.",
+    "tier": "Tier",
+    "lifetime": "{points} lifetime",
+    "nextTier": "{points} to reach {tier}",
+    "referralTitle": "Referrals",
+    "referralCodeLabel": "Referral code",
+    "referredCount": "{count} referrals",
+    "referredBy": "Referred by {name}",
+    "birthdayLabel": "Birthday: {date}",
+    "applyBirthdayBonus": "Apply bonus 🎂",
+    "birthdayBonusApplied": "Birthday bonus applied! 🎂",
     "confirmDelete": "Delete this customer and all their history?",
     "deleting": "Deleting…"
   },
@@ -349,7 +368,23 @@
     "sendInvite": "Send invitation",
     "sending": "Sending…",
     "inviteCreated": "Invitation created! Share this link (also sent by email):",
-    "deleteMemberConfirm": "Remove {name}?"
+    "deleteMemberConfirm": "Remove {name}?",
+    "emailLabel": "Email",
+    "roleLabel": "Role",
+    "loyaltyTitle": "Referrals & birthdays",
+    "referrerBonus": "Points for the referrer",
+    "refereeBonus": "Points for the new referred customer",
+    "birthdayBonus": "Birthday bonus",
+    "tiersTitle": "VIP tiers",
+    "tiersSubtitle": "Define tiers by lifetime points. The multiplier applies when earning points by purchase.",
+    "tierName": "Name",
+    "tierThreshold": "Threshold",
+    "tierMultiplier": "Multiplier",
+    "tierColor": "Color",
+    "addTier": "Add tier",
+    "noTiers": "No tiers configured.",
+    "tierThresholdValue": "from {points}",
+    "tierMultiplierValue": "x{value}"
   },
   "errors": {
     "businessNameShort": "The business name is too short",
@@ -391,6 +426,8 @@
     "teamLimitInvite": "Your {plan} plan allows up to {limit} members (including pending invitations). Upgrade to add more.",
     "enterPhone": "Enter your phone",
     "portalCustomerNotFound": "We couldn't find an account with that phone. Ask the store to register you.",
-    "inviteInvalid": "The invitation is invalid or expired"
+    "inviteInvalid": "The invitation is invalid or expired",
+    "multiplierMin": "The multiplier must be at least 1",
+    "noBirthdayBonus": "No birthday bonus is configured"
   }
 }

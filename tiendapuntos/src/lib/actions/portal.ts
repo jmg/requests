@@ -2,11 +2,17 @@
 
 import { getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
+import { currentTier } from "@/lib/tiers";
 
 export type PortalResult =
   | {
       ok: true;
-      customer: { name: string; points: number };
+      customer: {
+        name: string;
+        points: number;
+        referralCode: string;
+        tier: { name: string; color: string } | null;
+      };
       redemptions: { rewardName: string; code: string; status: string; createdAt: string }[];
     }
   | { ok: false; error: string }
@@ -23,7 +29,10 @@ export async function lookupCustomerAction(
   const phone = String(formData.get("phone") || "").trim();
   if (!phone) return { ok: false, error: t("enterPhone") };
 
-  const business = await prisma.business.findUnique({ where: { slug } });
+  const business = await prisma.business.findUnique({
+    where: { slug },
+    include: { tiers: true },
+  });
   if (!business) return { ok: false, error: t("businessNotFound") };
 
   const customer = await prisma.customer.findUnique({
@@ -40,9 +49,16 @@ export async function lookupCustomerAction(
     };
   }
 
+  const tier = currentTier(business.tiers, customer.lifetimePoints);
+
   return {
     ok: true,
-    customer: { name: customer.name, points: customer.points },
+    customer: {
+      name: customer.name,
+      points: customer.points,
+      referralCode: customer.referralCode,
+      tier: tier ? { name: tier.name, color: tier.color } : null,
+    },
     redemptions: customer.redemptions.map((r) => ({
       rewardName: r.rewardName,
       code: r.code,

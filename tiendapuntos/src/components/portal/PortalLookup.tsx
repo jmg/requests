@@ -50,6 +50,19 @@ export function PortalLookup({
             <p className="text-sm opacity-90">{t("greeting", { name: state.customer.name })}</p>
             <p className="mt-1 text-5xl font-extrabold">{state.customer.points}</p>
             <p className="text-sm opacity-90">{t("pointsAvailable", { points: pointsName })}</p>
+            {state.customer.tier && (
+              <p className="mt-3 inline-block rounded-full bg-white/20 px-3 py-1 text-sm font-medium">
+                {t("yourTier")}: ★ {state.customer.tier.name}
+              </p>
+            )}
+          </div>
+
+          <div className="rounded-xl border border-gray-200 p-4 text-center">
+            <p className="text-xs text-gray-500">{t("yourReferralCode")}</p>
+            <p className="my-1 text-2xl font-bold tracking-widest" style={{ color: brandColor }}>
+              {state.customer.referralCode}
+            </p>
+            <p className="text-xs text-gray-400">{t("shareReferral")}</p>
           </div>
 
           {state.redemptions.length > 0 && (

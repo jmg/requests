@@ -103,7 +103,10 @@
     "code": "Código {code}",
     "availableRewards": "Premios disponibles",
     "noRewards": "Todavía no hay premios cargados.",
-    "footer": "Programa de fidelización de {business}"
+    "footer": "Programa de fidelización de {business}",
+    "yourTier": "Tu nivel",
+    "yourReferralCode": "Tu código de referido",
+    "shareReferral": "Compartilo: cuando lo usen, ganás puntos."
   },
   "redemptionStatus": {
     "PENDING": "Pendiente",
@@ -135,7 +138,10 @@
     "topCustomers": "Mejores clientes",
     "noCustomers": "Todavía no cargaste clientes.",
     "recentActivity": "Últimos movimientos",
-    "noActivity": "Sin movimientos aún."
+    "noActivity": "Sin movimientos aún.",
+    "birthdaysTitle": "Cumpleaños del mes",
+    "noBirthdays": "Nadie cumple años este mes.",
+    "birthdayOn": "el {day}"
   },
   "onboarding": {
     "title": "👋 Bienvenido/a, empecemos",
@@ -182,6 +188,19 @@
     "historyTitle": "Historial de {points}",
     "noMovements": "Sin movimientos todavía.",
     "codeLabel": "código {code}",
+    "birthday": "Cumpleaños",
+    "referralCodeOptional": "Código de referido (opcional)",
+    "referralCodeHint": "Si lo trajo otro cliente, ingresá su código.",
+    "tier": "Nivel",
+    "lifetime": "{points} de por vida",
+    "nextTier": "Faltan {points} para {tier}",
+    "referralTitle": "Referidos",
+    "referralCodeLabel": "Código de referido",
+    "referredCount": "{count} referidos",
+    "referredBy": "Referido por {name}",
+    "birthdayLabel": "Cumpleaños: {date}",
+    "applyBirthdayBonus": "Aplicar bono 🎂",
+    "birthdayBonusApplied": "¡Bono de cumpleaños aplicado! 🎂",
     "confirmDelete": "¿Eliminar este cliente y todo su historial?",
     "deleting": "Eliminando…"
   },
@@ -349,7 +368,23 @@
     "sendInvite": "Enviar invitación",
     "sending": "Enviando…",
     "inviteCreated": "¡Invitación creada! Compartí este link (también se envió por email):",
-    "deleteMemberConfirm": "¿Eliminar a {name}?"
+    "deleteMemberConfirm": "¿Eliminar a {name}?",
+    "emailLabel": "Email",
+    "roleLabel": "Rol",
+    "loyaltyTitle": "Referidos y cumpleaños",
+    "referrerBonus": "Puntos para quien refiere",
+    "refereeBonus": "Puntos para el referido nuevo",
+    "birthdayBonus": "Bono de cumpleaños",
+    "tiersTitle": "Niveles VIP",
+    "tiersSubtitle": "Definí niveles por puntos acumulados. El multiplicador aplica al sumar puntos por compra.",
+    "tierName": "Nombre",
+    "tierThreshold": "Umbral",
+    "tierMultiplier": "Multiplicador",
+    "tierColor": "Color",
+    "addTier": "Agregar nivel",
+    "noTiers": "Sin niveles configurados.",
+    "tierThresholdValue": "desde {points}",
+    "tierMultiplierValue": "x{value}"
   },
   "errors": {
     "businessNameShort": "El nombre del negocio es muy corto",
@@ -391,6 +426,8 @@
     "teamLimitInvite": "Tu plan {plan} permite hasta {limit} miembros (incluyendo invitaciones pendientes). Mejorá tu plan para sumar más.",
     "enterPhone": "Ingresá tu teléfono",
     "portalCustomerNotFound": "No encontramos una cuenta con ese teléfono. Pedí en el local que te registren.",
-    "inviteInvalid": "La invitación no es válida o expiró"
+    "inviteInvalid": "La invitación no es válida o expiró",
+    "multiplierMin": "El multiplicador debe ser al menos 1",
+    "noBirthdayBonus": "No hay un bono de cumpleaños configurado"
   }
 }

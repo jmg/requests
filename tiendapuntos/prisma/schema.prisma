@@ -51,6 +51,11 @@ model Business {
   planSince         DateTime @default(now())
   stripeCustomerId     String? @unique
   stripeSubscriptionId String?
+  // Programa de referidos
+  referrerBonus     Int      @default(0) // puntos para quien refiere
+  refereeBonus      Int      @default(0) // puntos para el referido nuevo
+  // Bono de cumpleaños
+  birthdayBonus     Int      @default(0)
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
@@ -60,6 +65,22 @@ model Business {
   transactions PointsTransaction[]
   redemptions  Redemption[]
   invitations  Invitation[]
+  tiers        Tier[]
+}
+
+// Niveles VIP por negocio. Un cliente alcanza el nivel cuyo umbral
+// (puntos acumulados de por vida) sea el más alto que no supere.
+model Tier {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  name       String
+  threshold  Int      @default(0) // puntos acumulados para alcanzarlo
+  multiplier Float    @default(1) // multiplicador de puntos al sumar por compra
+  color      String   @default("#64748b")
+  createdAt  DateTime @default(now())
+
+  @@index([businessId])
 }
 
 model Invitation {
@@ -100,8 +121,16 @@ model Customer {
   email      String?
   phone      String?
   notes      String?
+  birthday   DateTime?
   // Saldo actual de puntos (denormalizado para lecturas rápidas)
   points     Int      @default(0)
+  // Puntos acumulados de por vida (para calcular el nivel VIP)
+  lifetimePoints Int  @default(0)
+  // Programa de referidos
+  referralCode String @unique
+  referredById String?
+  referredBy   Customer?  @relation("Referrals", fields: [referredById], references: [id], onDelete: SetNull)
+  referrals    Customer[] @relation("Referrals")
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
@@ -111,6 +140,7 @@ model Customer {
   // Un mismo teléfono no se repite dentro de un negocio
   @@unique([businessId, phone])
   @@index([businessId])
+  @@index([referredById])
 }
 
 model PointsTransaction {

@@ -5,6 +5,7 @@ import { portalUrl } from "@/lib/app-url";
 import { qrDataUrl } from "@/lib/qr";
 import { BusinessSettingsForm } from "@/components/settings/BusinessSettingsForm";
 import { TeamManager } from "@/components/settings/TeamManager";
+import { TiersManager } from "@/components/settings/TiersManager";
 import { CopyField } from "@/components/CopyField";
 
 export default async function SettingsPage() {
@@ -12,7 +13,7 @@ export default async function SettingsPage() {
   const session = (await getSession())!;
   const isStaff = session.role === "STAFF";
 
-  const [business, members, invitations] = await Promise.all([
+  const [business, members, invitations, tiers] = await Promise.all([
     prisma.business.findUnique({ where: { id: session.businessId } }),
     prisma.user.findMany({
       where: { businessId: session.businessId },
@@ -23,6 +24,10 @@ export default async function SettingsPage() {
       where: { businessId: session.businessId, acceptedAt: null, expiresAt: { gt: new Date() } },
       orderBy: { createdAt: "desc" },
       select: { id: true, email: true, role: true, expiresAt: true },
+    }),
+    prisma.tier.findMany({
+      where: { businessId: session.businessId },
+      orderBy: { threshold: "asc" },
     }),
   ]);
 
@@ -67,6 +72,12 @@ export default async function SettingsPage() {
           <div className="card">
             <h2 className="mb-4 text-lg font-semibold">{t("programData")}</h2>
             <BusinessSettingsForm business={business} />
+          </div>
+
+          <div className="card">
+            <h2 className="mb-1 text-lg font-semibold">{t("tiersTitle")}</h2>
+            <p className="mb-4 text-sm text-gray-500">{t("tiersSubtitle")}</p>
+            <TiersManager tiers={tiers} />
           </div>
 
           <div className="card">

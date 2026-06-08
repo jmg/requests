@@ -14,6 +14,15 @@ export default async function EditCustomerPage({ params }: { params: { id: strin
 
   if (!customer) notFound();
 
+  const formCustomer = {
+    id: customer.id,
+    name: customer.name,
+    email: customer.email,
+    phone: customer.phone,
+    notes: customer.notes,
+    birthday: customer.birthday ? customer.birthday.toISOString().slice(0, 10) : null,
+  };
+
   return (
     <div className="mx-auto max-w-lg space-y-6">
       <div>
@@ -25,7 +34,7 @@ export default async function EditCustomerPage({ params }: { params: { id: strin
         </Link>
         <h1 className="mt-2 text-2xl font-bold">{t("editTitle")}</h1>
       </div>
-      <EditCustomerForm customer={customer} />
+      <EditCustomerForm customer={formCustomer} />
     </div>
   );
 }

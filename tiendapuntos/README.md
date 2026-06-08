@@ -32,6 +32,16 @@ Construida con **Next.js 14 (App Router)**, **Prisma** y **PostgreSQL**.
 - **Reportes y exportación** (Pro): gráfico de actividad mensual (puntos emitidos vs. canjeados) y
   exportación de clientes y movimientos a **CSV** (`/api/export/*`).
 
+### Fidelización avanzada
+- **Programa de referidos**: cada cliente tiene un **código de referido** único. Al registrar un cliente
+  nuevo con el código de quien lo trajo, ambos reciben un bono de puntos configurable
+  (`referrerBonus` / `refereeBonus`). El código se muestra en la ficha del cliente y en el portal.
+- **Niveles VIP (tiers)**: niveles por puntos **acumulados de por vida** (ej. Bronce/Plata/Oro), cada uno
+  con un **multiplicador** que se aplica al sumar puntos por compra. Se gestionan desde Configuración y
+  el nivel del cliente se muestra en su ficha y en el portal.
+- **Bono de cumpleaños**: guardás la fecha de cumpleaños del cliente; el panel muestra los **cumpleaños
+  del mes** y, con un bono configurado, se aplica con un clic desde la ficha.
+
 ### Integraciones y operación
 - **Invitaciones de equipo por email** (`/invite/[token]`): el dueño/admin invita por email; el invitado
   crea su cuenta desde un link con token (vence a 7 días). El envío de mail está stubbeado (se loguea

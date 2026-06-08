@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getTranslations } from "next-intl/server";
+import { getTranslations, getLocale } from "next-intl/server";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { formatNumber, formatDate } from "@/lib/utils";
@@ -11,6 +11,7 @@ export default async function DashboardPage() {
   const businessId = session.businessId;
   const t = await getTranslations("dashboard");
   const to = await getTranslations("onboarding");
+  const locale = await getLocale();
 
   const business = await prisma.business.findUnique({ where: { id: businessId } });
   const pointsName = business?.pointsName ?? "puntos";
@@ -48,6 +49,18 @@ export default async function DashboardPage() {
 
   const rewardCount = await prisma.reward.count({ where: { businessId } });
 
+  // Cumpleaños del mes actual (filtramos por mes en memoria).
+  const currentMonth = new Date().getMonth();
+  const withBirthday = await prisma.customer.findMany({
+    where: { businessId, birthday: { not: null } },
+    select: { id: true, name: true, birthday: true },
+    take: 300,
+  });
+  const birthdaysThisMonth = withBirthday
+    .filter((c) => c.birthday && c.birthday.getMonth() === currentMonth)
+    .sort((a, b) => (a.birthday!.getDate() - b.birthday!.getDate()))
+    .slice(0, 8);
+
   const pointsIssued = earnAgg._sum.points ?? 0;
   const pointsRedeemed = Math.abs(redeemAgg._sum.points ?? 0);
 
@@ -79,10 +92,10 @@ export default async function DashboardPage() {
   const onboardingDone = onboardingSteps.every((s) => s.done);
 
   const stats = [
-    { label: t("statCustomers"), value: formatNumber(customerCount), icon: "👥", href: "/dashboard/customers" },
-    { label: t("statIssued", { points: pointsName }), value: formatNumber(pointsIssued), icon: "⭐" },
-    { label: t("statRedeemed", { points: pointsName }), value: formatNumber(pointsRedeemed), icon: "🎁" },
-    { label: t("statPending"), value: formatNumber(pendingRedemptions), icon: "🎟️", href: "/dashboard/redemptions" },
+    { label: t("statCustomers"), value: formatNumber(customerCount, locale), icon: "👥", href: "/dashboard/customers" },
+    { label: t("statIssued", { points: pointsName }), value: formatNumber(pointsIssued, locale), icon: "⭐" },
+    { label: t("statRedeemed", { points: pointsName }), value: formatNumber(pointsRedeemed, locale), icon: "🎁" },
+    { label: t("statPending"), value: formatNumber(pendingRedemptions, locale), icon: "🎟️", href: "/dashboard/redemptions" },
   ];
 
   return (
@@ -141,7 +154,7 @@ export default async function DashboardPage() {
                     <span className="font-medium">{c.name}</span>
                   </Link>
                   <span className="font-semibold text-brand-700">
-                    {formatNumber(c.points)} {pointsName}
+                    {formatNumber(c.points, locale)} {pointsName}
                   </span>
                 </li>
               ))}
@@ -164,7 +177,7 @@ export default async function DashboardPage() {
                     >
                       {tx.customer.name}
                     </Link>
-                    <p className="text-xs text-gray-400">{formatDate(tx.createdAt)}</p>
+                    <p className="text-xs text-gray-400">{formatDate(tx.createdAt, locale)}</p>
                   </div>
                   <span
                     className={`font-semibold ${
@@ -172,13 +185,31 @@ export default async function DashboardPage() {
                     }`}
                   >
                     {tx.points >= 0 ? "+" : ""}
-                    {formatNumber(tx.points)}
+                    {formatNumber(tx.points, locale)}
                   </span>
                 </li>
               ))}
             </ul>
           )}
         </div>
+      </div>
+
+      <div className="card">
+        <h2 className="text-lg font-semibold">🎂 {t("birthdaysTitle")}</h2>
+        {birthdaysThisMonth.length === 0 ? (
+          <p className="mt-3 text-sm text-gray-500">{t("noBirthdays")}</p>
+        ) : (
+          <ul className="mt-3 grid gap-2 sm:grid-cols-2">
+            {birthdaysThisMonth.map((c) => (
+              <li key={c.id} className="flex items-center justify-between rounded-lg bg-gray-50 px-3 py-2 text-sm">
+                <Link href={`/dashboard/customers/${c.id}`} className="font-medium hover:text-brand-700">
+                  {c.name}
+                </Link>
+                <span className="text-gray-500">{t("birthdayOn", { day: c.birthday!.getDate() })}</span>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </div>
   );

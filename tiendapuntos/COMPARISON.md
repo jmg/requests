@@ -44,8 +44,9 @@
 | QR del programa | ✅ | ➖ | ✅ | ✅ |
 | Internacionalización ES/EN | ✅ | ✅ (multi‑idioma) | ✅ (multi‑idioma) | ➖ (ES) |
 | Integración nativa con e‑commerce | ➖ | ✅ (Shopify, etc.) | ➖ | ➖ |
-| Programa de referidos | ➖ (roadmap) | ✅ | ➖ | parcial |
-| Niveles VIP / tiers | ➖ (roadmap) | ✅ | ➖ | parcial |
+| Programa de referidos | ✅ | ✅ | ➖ | parcial |
+| Niveles VIP / tiers (con multiplicador) | ✅ | ✅ | ➖ | parcial |
+| Bono de cumpleaños | ✅ | ✅ | ➖ | ✅ |
 | App móvil nativa | ➖ (web responsive) | ➖ (web) | ✅ | ✅ |
 | Punto de venta (POS) integrado | ➖ | ➖ | ✅ | ➖ |
 | Campañas / notificaciones push o email | ➖ (roadmap) | ✅ | ✅ | ✅ |
@@ -81,9 +82,13 @@ Leyenda: ✅ disponible · ➖ no disponible / limitado.
 ### ⚠️ Dónde todavía pierde
 - **Sin POS integrado** como Loyverse (que cubre venta + fidelización en un solo flujo).
 - **Sin integración nativa con tiendas online** como Smile.io (Shopify, etc.).
-- **Faltan referidos, niveles VIP y campañas** (email/push), que la competencia ya trae.
+- **Faltan campañas automáticas** (email/push/WhatsApp por segmento) que Smile y Loyverse traen.
 - **Sin app móvil nativa** para clientes (hoy es web responsive).
 - **Medios de pago**: Stripe está listo, pero para Argentina conviene **Mercado Pago**.
+
+> ✅ Ya implementados (antes en el roadmap): **programa de referidos**, **niveles VIP con
+> multiplicador de puntos** y **bono de cumpleaños**, que acercan a TiendaPuntos a la propuesta de
+> Smile.io en retención y captación.
 
 ---
 
@@ -91,12 +96,13 @@ Leyenda: ✅ disponible · ➖ no disponible / limitado.
 
 Ordenado por impacto/esfuerzo para competir mejor:
 
-1. **Referidos** ("traé un amigo y ganen puntos") → iguala a Smile.io, alto impacto en captación.
-2. **Niveles / tiers VIP** (Bronce/Plata/Oro con beneficios) → retención.
-3. **Campañas**: email/WhatsApp a clientes por segmento (inactivos, cumpleaños, etc.).
-4. **Mercado Pago** como medio de pago y de acreditación de puntos (clave para AR).
-5. **PWA / app móvil** para el cliente final (notificaciones push, billetera de puntos).
-6. **Integración Shopify/Tiendanube** para no quedar afuera del e‑commerce LATAM.
+1. ~~**Referidos**~~ ✅ implementado (código por cliente + bonos configurables).
+2. ~~**Niveles / tiers VIP**~~ ✅ implementado (Bronce/Plata/Oro con multiplicador de puntos).
+3. ~~**Bono de cumpleaños**~~ ✅ implementado.
+4. **Campañas**: email/WhatsApp a clientes por segmento (inactivos, cumpleaños, etc.).
+5. **Mercado Pago** como medio de pago y de acreditación de puntos (clave para AR).
+6. **PWA / app móvil** para el cliente final (notificaciones push, billetera de puntos).
+7. **Integración Shopify/Tiendanube** para no quedar afuera del e‑commerce LATAM.
 
 ---
 

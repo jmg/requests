@@ -189,6 +189,13 @@ tiendapuntos/
 
 Los saldos se actualizan dentro de transacciones de base de datos para mantener la consistencia.
 
+## ✅ Tests y CI
+
+- **Tests unitarios** con [Vitest](https://vitest.dev) sobre la lógica pura (niveles VIP, notas de
+  movimientos, segmentos, planes, utilidades): `npm test`.
+- **Integración continua** con GitHub Actions (`.github/workflows/tiendapuntos-ci.yml`): ante cada push
+  o PR que toque `tiendapuntos/**`, corre **typecheck → tests → build**.
+
 ## 📝 Scripts
 
 | Comando            | Descripción                          |
@@ -196,6 +203,7 @@ Los saldos se actualizan dentro de transacciones de base de datos para mantener 
 | `npm run dev`      | Servidor de desarrollo               |
 | `npm run build`    | Build de producción                  |
 | `npm run start`    | Servidor de producción               |
+| `npm test`         | Tests unitarios (Vitest)             |
 | `npm run db:push`  | Sincroniza el esquema con la DB (dev)|
 | `npm run db:migrate` | Crea/aplica migraciones (dev)      |
 | `npm run db:deploy`| Aplica migraciones en producción     |

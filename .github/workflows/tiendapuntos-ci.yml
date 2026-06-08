@@ -1,0 +1,44 @@
+name: TiendaPuntos CI
+
+on:
+  push:
+    paths:
+      - "tiendapuntos/**"
+      - ".github/workflows/tiendapuntos-ci.yml"
+  pull_request:
+    paths:
+      - "tiendapuntos/**"
+      - ".github/workflows/tiendapuntos-ci.yml"
+
+defaults:
+  run:
+    working-directory: tiendapuntos
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      # Valores dummy: el build no se conecta a la base, pero algunos módulos
+      # leen estas variables. La conexión real sólo ocurre en runtime.
+      DATABASE_URL: "postgresql://user:pass@localhost:5432/ci?schema=public"
+      AUTH_SECRET: "ci-secret-not-used-in-production-0123456789"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: tiendapuntos/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npx tsc --noEmit
+
+      - name: Tests
+        run: npm test
+
+      - name: Build
+        run: npm run build
